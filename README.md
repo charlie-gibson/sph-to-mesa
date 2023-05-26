@@ -39,9 +39,9 @@ The following scripts are for generating the necessary MESA files:
 
 The following scripts are for generating the correct composition files:
 
-## read_orig_comp.py
-* This code reads in composition.dat, a file generated from an external script called composition.py, and saves the composition data for each zone (shell) of the star
-* The code returns two numpy arrays. The first is the array of all q values that correspond with the shell, and the second is an 8D array of all 8 composition fractions of each shell.
+## read_orig_profile_comp.py
+* This code reads in the composition of each element directly from the profile used in StarSmasher, saving each value to a list
+* The code returns two lists. The first is the array of all q values that correspond with the shell, and the second is a list of lists tha contains the composition for each corresponding q value
 
 ## composition_spline.py
 * This code uses the data from read_orig_comp.py and creates a spline of the data for each element
