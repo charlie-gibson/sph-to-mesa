@@ -13,9 +13,9 @@ Here is a description of the process and the following codes:
 Here is a summary of each script:
 
 ## splot.py
-### This code, originally created by Hans Vanderzyden and later modified by myself, acts as the main interface for the data analysis
-### It's location should be in your working directory and it will import the other analysis files from their file locations
-### There are currently two options for the code. Additional codes can be written for further analysis needs
+* This code, originally created by Hans Vanderzyden and later modified by myself, acts as the main interface for the data analysis
+* It's location should be in your working directory and it will import the other analysis files from their file locations
+* There are currently two options for the code. Additional codes can be written for further analysis needs
 
 The following scripts are for generating the necessary MESA files:
 
