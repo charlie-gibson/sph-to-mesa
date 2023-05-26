@@ -35,7 +35,7 @@ def main():
     composition [2] \n"))
     nnit_input_start = int(input("Starting out file (int): "))
     nnit_input_end = int(input("Ending out file (int, must be >= the start value): "))
-    frequency = int(input()"Step size between files"))
+    frequency = int(input("Step size between files"))
     nnit_input = nnit_input_start
     while nnit_input <= nnit_input_end:
         if nnit_input_end >= nnit_input_start:
