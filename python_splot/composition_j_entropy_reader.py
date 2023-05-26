@@ -163,7 +163,7 @@ def entropy_reader():
     mg24fit = mg24(q)
 
 
-    mycompositionfile = open("new_composition.dat", "w")
+    mycompositionfile = open("composition.dat", "w")
 
     mycompositionfile.write(f"{num_zones[len(h1)]}    {8}\n")
 
