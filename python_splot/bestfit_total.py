@@ -65,16 +65,6 @@ def bestfit(data, comp_data):
         elif i == 7:
             mg24 = values
 
-    
-    # h1 = np.array(h1).astype(float)
-    # he3 = np.array(he3).astype(float)
-    # he4 = np.array(he4).astype(float)
-    # c12 = np.array(c12).astype(float)
-    # n14 = np.array(n14).astype(float)
-    # o16 = np.array(o16).astype(float)
-    # ne20 = np.array(ne20).astype(float)
-    # mg24 = np.array(mg24).astype(float)
-
     print("DATA PASSED TO FUNCTION")
     
     # variables
