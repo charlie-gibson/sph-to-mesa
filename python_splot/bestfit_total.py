@@ -105,10 +105,10 @@ def bestfit(data, comp_data):
     for i in range(ntot):
         alogrhoi = np.log10(rho[i]) # finds the log base 10 of each density value
         # determines which bin to put the particle
-        nbini = int((alogrhoi-alogrhomin) * (nbins-1.0)/(alogrhomax - alogrhomin) + 1.0)
+        nbini = int((alogrhoi-alogrhomin) * (nbins-1.0)/(alogrhomax - alogrhomin))
 
         # checks if the bin is outside of the range of possible bins
-        if(nbini > nbins or nbini <  1):
+        if(nbini >= nbins or nbini <  0):
             print("PROBLEM 3")
 
         # these are leftover codes from the original Fortran. This method also works but is
@@ -133,37 +133,37 @@ def bestfit(data, comp_data):
     print(f"Center of Mass Velocity: ({vxc}, {vyc}, {vzc})")
     
     # initializes the lists that will be used for further binning
-    ammrhoavg = np.zeros(nbinsbf+1)
-    amavg = np.zeros(nbinsbf+1)
-    aiavg = np.zeros(nbinsbf+1)
-    rhoavg = np.zeros(nbinsbf+1)
-    ravg = np.zeros(nbinsbf+1)
-    jrotavg = np.zeros((nbinsbf+1, 3))
+    ammrhoavg = np.zeros(nbinsbf)
+    amavg = np.zeros(nbinsbf)
+    aiavg = np.zeros(nbinsbf)
+    rhoavg = np.zeros(nbinsbf)
+    ravg = np.zeros(nbinsbf)
+    jrotavg = np.zeros((nbinsbf, 3))
     radius = 0
 
     # composition arrays
-    h1avg = np.zeros(nbinsbf+1)
-    he3avg = np.zeros(nbinsbf+1)
-    he4avg = np.zeros(nbinsbf+1)
-    c12avg = np.zeros(nbinsbf+1)
-    n14avg = np.zeros(nbinsbf+1)
-    o16avg = np.zeros(nbinsbf+1)
-    ne20avg = np.zeros(nbinsbf+1)
-    mg24avg = np.zeros(nbinsbf+1)
+    h1avg = np.zeros(nbinsbf)
+    he3avg = np.zeros(nbinsbf)
+    he4avg = np.zeros(nbinsbf)
+    c12avg = np.zeros(nbinsbf)
+    n14avg = np.zeros(nbinsbf)
+    o16avg = np.zeros(nbinsbf)
+    ne20avg = np.zeros(nbinsbf)
+    mg24avg = np.zeros(nbinsbf)
 
     # loops over every particle
     for i in range(ntot):
         alogrhoi = np.log10(rho[i]) # finds the log of the density of each particle
-        nbini = (alogrhoi - alogrhomin) * (nbins - 1) / (alogrhomax - alogrhomin) + 1 # index of the bin that the particle is in
-        amonmrho = amrho[int(nbini)] / amasstot # mass fraction of the particle based on the bin it falls into
-        index = int(amonmrho * nbinsbf + 0.99999)
+        nbini = int((alogrhoi - alogrhomin) * (nbins - 1) / (alogrhomax - alogrhomin)) # index of the bin that the particle is in
+        amonmrho = amrho[nbini] / amasstot # mass fraction of the particle based on the bin it falls into
+        index = int(amonmrho * nbinsbf)
         if index > nbinsbf:
             print("Warning: index > nbinsbf", index)
-            index = nbinsbf
+            index = nbinsbf - 1
         
-        if index < 1:
-            print("Warning: index < 1", index)
-            index = 1
+        if index < 0:
+            print("Warning: index < 0", index)
+            raise SystemExit
 
         # note that all of these multiply by mass but are divided by another mass later on
         amavg[index] += am[i] # adds the mass for each particle to its corresponding index
@@ -251,13 +251,14 @@ def bestfit(data, comp_data):
                 pass
 
             if index != 1:
-                if aiavg[index] < aiavg[index - 1] and anoteqfrac == 0:
+                # This finds where A=(GAM-1)*u/rho^(GAM-1) stops increasing outward
+                if uiavg[index]/rhoavg[index]**(GAM-1) < uiavg[index - 1]/rhoavg[index]**(GAM-1) and anoteqfrac == 0:
                     anoteqfrac = 1 - 0.5 * (ammrhoavg[index]+ammrhoavg[index-1])
                     print(f"FRACTION NOT IN EQUILIBRIUM ={anoteqfrac} ")
 
         apressure = aimax * rhomin * (GAM - 1)
 
-        # writes the data for the outermost layers of the star
+        # writes the data for the outermost layer of the star
         f.write("{:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e}\n".format(amasstot * munit, radius * runit,
                                                        apressure * gravconst * (munit/runit**2)**2,
                                                        rhomin * munit/runit**3,
