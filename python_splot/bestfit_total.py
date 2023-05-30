@@ -97,7 +97,7 @@ def bestfit(data, comp_data):
 
     ammrhoavg = np.zeros(nbinsbf)
     rhoavg = np.zeros(nbinsbf)
-    aiavg = np.zeros(nbinsbf)
+    uiavg = np.zeros(nbinsbf)
     ravg = np.zeros(nbinsbf)
     amavg = np.zeros(nbinsbf)
 
@@ -135,7 +135,7 @@ def bestfit(data, comp_data):
     # initializes the lists that will be used for further binning
     ammrhoavg = np.zeros(nbinsbf)
     amavg = np.zeros(nbinsbf)
-    aiavg = np.zeros(nbinsbf)
+    uiavg = np.zeros(nbinsbf)
     rhoavg = np.zeros(nbinsbf)
     ravg = np.zeros(nbinsbf)
     jrotavg = np.zeros((nbinsbf, 3))
@@ -167,7 +167,7 @@ def bestfit(data, comp_data):
 
         # note that all of these multiply by mass but are divided by another mass later on
         amavg[index] += am[i] # adds the mass for each particle to its corresponding index
-        aiavg[index] += u[i] * am[i] # this gives the internal energy for each index
+        uiavg[index] += u[i] * am[i] # this gives the internal energy for each index
         rhoavg[index] += rho[i] * am[i] # this gives the density times mass for each index
         rvec = np.array([x[i] - xc, y[i] - yc, z[i] - zc]) # this provides the r vector of the particle
         vvec = np.array([(vx[i]-vxc), (vy[i]-vyc), (vz[i]-vzc)]) # this gives the velocity vector of the particle
@@ -189,7 +189,7 @@ def bestfit(data, comp_data):
         # finds these values for the outermost particle
         if r > radius:
             radius = r
-            aimax = u[i]
+            uimax = u[i]
             rhomin = rho[i]
             jrotmax = am[i] * np.cross(rvec, vvec)
 
@@ -214,12 +214,12 @@ def bestfit(data, comp_data):
         # divides all values by the mass of the bin to convert back to the final values
         for index in range(nbinsbf):
             ammrhoavg[index] = ammrhoavg[index] / amavg[index]
-            aiavg[index] = aiavg[index] / amavg[index]
+            uiavg[index] = uiavg[index] / amavg[index]
             rhoavg[index] = rhoavg[index] / amavg[index]
             ravg[index] = ravg[index] / amavg[index]
             jrotavg[index] = np.linalg.norm(jrotavg[index]) / amavg[index]
 
-            apressure = aiavg[index] * rhoavg[index] * (GAM - 1)
+            apressure = uiavg[index] * rhoavg[index] * (GAM - 1)
 
             # updates composition data:
             h1avg[index] /= amavg[index]
@@ -235,7 +235,7 @@ def bestfit(data, comp_data):
             # anywhere in the code, it will be skipped
             if not np.isnan(ammrhoavg[index] * amasstot * munit) or not np.isnan(ravg[index] *\
                 runit) or not np.isnan(apressure * gravconst * (munit / runit ** 2) ** 2) or not\
-                np.isnan(rhoavg[index] * munit / runit ** 3) or not np.isnan(aiavg[index] * \
+                np.isnan(rhoavg[index] * munit / runit ** 3) or not np.isnan(uiavg[index] * \
                 gravconst * munit / runit) or not np.isnan(np.linalg.norm(jrotavg[index]) * \
                 runit**2 / (np.sqrt(runit**3/(gravconst * munit)))):
                 f.write('{:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e}\n'.format(
@@ -243,7 +243,7 @@ def bestfit(data, comp_data):
                 ravg[index] * runit,
                 apressure * gravconst * (munit / runit ** 2) ** 2,
                 rhoavg[index] * munit / runit ** 3,
-                aiavg[index] * gravconst * munit / runit,
+                uiavg[index] * gravconst * munit / runit,
                 np.linalg.norm(jrotavg[index]) * runit**2 / (np.sqrt(runit**3/(gravconst * munit))),
                 h1avg[index], he3avg[index], he4avg[index], c12avg[index], n14avg[index],
                 o16avg[index], ne20avg[index], mg24avg[index]))
@@ -256,13 +256,13 @@ def bestfit(data, comp_data):
                     anoteqfrac = 1 - 0.5 * (ammrhoavg[index]+ammrhoavg[index-1])
                     print(f"FRACTION NOT IN EQUILIBRIUM ={anoteqfrac} ")
 
-        apressure = aimax * rhomin * (GAM - 1)
+        apressure = uimax * rhomin * (GAM - 1)
 
         # writes the data for the outermost layer of the star
         f.write("{:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e}\n".format(amasstot * munit, radius * runit,
                                                        apressure * gravconst * (munit/runit**2)**2,
                                                        rhomin * munit/runit**3,
-                                                       aimax * gravconst * munit/runit,
+                                                       uimax * gravconst * munit/runit,
                                                        np.linalg.norm(jrotmax) * runit**2 / (np.sqrt(runit**3/(gravconst * munit))),
                                                        h1max, he3max, he4max, c12max, n14max, o16max, ne20max, mg24max
                                                        ))
