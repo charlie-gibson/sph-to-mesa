@@ -1,21 +1,20 @@
 """
-This code analyzes the file bestfit.sph to generate
+This code analyzes the file bestfit2.sph to generate
 a profile pair of density and specific thermal energy.
-
-It now also reads in data for the angular momentum and composition.
-
-It uses these data to write three files:
-composition.dat, entropy.dat, angular_momentum.dat
 
 These values can be used to generate a mesa run using
 the relax_composition_j_entropy test suite.
+
+As of now, the composition will be used from the original
+mesa run until we can get the composition in the output
+from StarSmasher.
 
 Charles Gibson
 Allegheny College
 Department of Physics
 """
 
-def entropy_reader():
+def entropy_reader(mode):
 
     import numpy as np
     from scipy.interpolate import CubicSpline
@@ -33,6 +32,7 @@ def entropy_reader():
         density = []
         specThermEnergy = []
         jrotlist = []
+        templist = []
         h1list = []
         he3list = []
         he4list = []
@@ -53,14 +53,15 @@ def entropy_reader():
                 density.append(float(values[3].replace("D", "e")))
                 specThermEnergy.append(float(values[4].replace("D", "e")))
                 jrotlist.append(float(values[5].replace("D", "e")))
-                h1list.append(float(values[6].replace("D", "e")))
-                he3list.append(float(values[7].replace("D", "e")))
-                he4list.append(float(values[8].replace("D", "e")))
-                c12list.append(float(values[9].replace("D", "e")))
-                n14list.append(float(values[10].replace("D", "e")))
-                o16list.append(float(values[11].replace("D", "e")))
-                ne20list.append(float(values[12].replace("D", "e")))
-                mg24list.append(float(values[13].replace("D", "e")))
+                templist.append(float(values[6].replace("D", "e")))
+                h1list.append(float(values[7].replace("D", "e")))
+                he3list.append(float(values[8].replace("D", "e")))
+                he4list.append(float(values[9].replace("D", "e")))
+                c12list.append(float(values[10].replace("D", "e")))
+                n14list.append(float(values[11].replace("D", "e")))
+                o16list.append(float(values[12].replace("D", "e")))
+                ne20list.append(float(values[13].replace("D", "e")))
+                mg24list.append(float(values[14].replace("D", "e")))
             except:
                 pass
 
@@ -79,7 +80,6 @@ def entropy_reader():
                 newq = line.split()[0]
                 q.append(float(newq))
 
-    myentropyfile = open("entropy.dat", "w")
     totalmass = 0
     q_mass_fraction = []
 
@@ -87,6 +87,8 @@ def entropy_reader():
     # which we find with this line
 
     totalmass = float(mass[-1])
+    # print("entropy reader says normalized totalmass =", totalmass)
+    # print(len(q), len(mass))
 
     index = 0
     # calculates the total mass outside each "shell"
@@ -101,29 +103,33 @@ def entropy_reader():
     # calculates P/rho^(5/3)
     poverrho53 = []
     for i, j in zip(density, pressure):
-        poverrho53.append(i/j**(5/3))
+        poverrho53.append(j/i**(5/3))
 
-    # Spline can only interpolate with increasing values of x
+    # Spline can only interpolate with increasing values of q
     q_mass_fraction.reverse()
     density.reverse()
     specThermEnergy.reverse()
+    pressure.reverse()
     poverrho53.reverse()
     jrotlist.reverse()
-    # h1list.reverse()
-    # he3list.reverse()
-    # he4list.reverse()
-    # c12list.reverse()
-    # n14list.reverse()
-    # o16list.reverse()
-    # ne20list.reverse()
-    # mg24list.reverse()
+    templist.reverse()
+    h1list.reverse()
+    he3list.reverse()
+    he4list.reverse()
+    c12list.reverse()
+    n14list.reverse()
+    o16list.reverse()
+    ne20list.reverse()
+    mg24list.reverse()
 
     # creates an equation for the data of mass fraction vs density,
     # mass fraction vs specific thermal energy, and mass fraction and angular momentum
     rho = CubicSpline(q_mass_fraction, density)
     e = CubicSpline(q_mass_fraction, specThermEnergy)
+    p = CubicSpline(q_mass_fraction, pressure)
     prho53 = CubicSpline(q_mass_fraction, poverrho53)
     jrot = CubicSpline(q_mass_fraction, jrotlist)
+    temp = CubicSpline(q_mass_fraction, templist)
     h1 = CubicSpline(q_mass_fraction, h1list)
     he3 = CubicSpline(q_mass_fraction, he3list)
     he4 = CubicSpline(q_mass_fraction, he4list)
@@ -137,8 +143,10 @@ def entropy_reader():
     q_mass_fraction.reverse()
     density.reverse()
     specThermEnergy.reverse()
+    pressure.reverse()
     poverrho53.reverse()
     jrotlist.reverse()
+    templist.reverse()
     h1list.reverse()
     he3list.reverse()
     he4list.reverse()
@@ -152,7 +160,9 @@ def entropy_reader():
     densityfit = rho(q)
     specThermEnergyfit = e(q)
     poverrho53fit = prho53(q)
+    pressurefit = p(q)
     jrotfit = jrot(q)
+    tempfit = temp(q)
     h1fit = h1(q)
     he3fit = he3(q)
     he4fit = he4(q)
@@ -165,7 +175,7 @@ def entropy_reader():
 
     mycompositionfile = open("composition.dat", "w")
 
-    mycompositionfile.write(f"{num_zones[len(h1)]}    {8}\n")
+    mycompositionfile.write(f"{num_zones[0]}    {8}\n")
 
     for k in q:
         mycompositionfile.write(f"{k}     {h1(k)}     {he3(k)}     {he4(k)}     {c12(k)}     \
@@ -173,14 +183,42 @@ def entropy_reader():
 
     # this writes the entropy.dat file to be used in mesa
 
+    myentropyfile = open("entropy.dat", "w")
+
     # includes the number of zones at the top of the file
     myentropyfile.write(f"{num_zones[0]}\n")
 
-    # writes mass fraction, density, and specific thermal energy on one line per shell
-    for j in q:
-        myentropyfile.write(f"{j}     {rho(j)}     {e(j)}\n")
+    if mode == 'DT':
 
-    myentropyfile.close()
+        # this format is for a density, temperature pair
+        for j in q:
+            myentropyfile.write(f"{j}     {abs(rho(j))}     {abs(temp(j))}\n")
+
+        myentropyfile.close()
+    
+    elif mode == 'PT':
+
+        # print('length of q =', len(q))
+        for j in q:
+            myentropyfile.write(f"{j}     {abs(p(j))}     {abs(temp(j))}\n")
+        
+        myentropyfile.close
+
+    elif mode == 'DE':
+
+        # this format is for a density, specific thermal energy pair
+        # writes mass fraction, density, and specific thermal energy on one line per shell
+        for j in q:
+            myentropyfile.write(f"{j}     {abs(rho(j))}     {abs(e(j))}\n")
+
+        myentropyfile.close
+
+    elif mode == 'DP':
+
+        for j in q:
+            myentropyfile.write(f"{j}     {abs(rho(j))}     {abs(p(j))}\n")
+        
+        myentropyfile.close()
 
     # this writes the angular_momentum.dat file to be used in mesa
 
