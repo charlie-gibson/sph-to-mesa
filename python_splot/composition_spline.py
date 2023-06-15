@@ -13,7 +13,7 @@ O16
 Ne20
 Mg24
 
-If you do not have all of these outputted to the MESA profile then you will need to edit the code
+If you do not have all of these outputted, then you will need to edit the code
 to account for what elements are present.
 
 Charles Gibson
