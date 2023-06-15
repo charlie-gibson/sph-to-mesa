@@ -125,6 +125,6 @@ and the line that needs to be edited is line 3062. It should read
 
 
 # References
-James Lombardi for assisting with the physical understanding of StarSmasher and its outputs, assisting with the writing of some of the codes, and for sharing prior Fortran codes that I was able to translate to Python for additional analysis
-Hans Vanderzyden for writing the initial Python files that read in the StarSmasher data and for writing the original splot.py code that I used as an interface
-Evan Bauer, Ebraheem Farag (on the mesa-users list) for assisting with using the files to relax the star and for helping alter the MESA code
+* James Lombardi for assisting with the physical understanding of StarSmasher and its outputs, assisting with the writing of some of the codes, and for sharing prior Fortran codes that I was able to translate to Python for additional analysis
+* Hans Vanderzyden for writing the initial Python files that read in the StarSmasher data and for writing the original splot.py code that I used as an interface
+* Evan Bauer, Ebraheem Farag (on the mesa-users list) for assisting with using the files to relax the star and for helping alter the MESA code
