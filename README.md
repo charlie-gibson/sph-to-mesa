@@ -34,7 +34,7 @@ The following scripts are for generating the necessary MESA files:
 * This code, originally written by Hans Vanderzyden and later modified by myself, reads in the binary data from the out*.sph file(s) and saves all the data to a dictionary to be exported
 * This code is generalized to read in all particles except for BH particles (work may need to be done to ensure that this method of skipping the BH is robust)
 
-## compsph_reaadit.py
+## compsph_readit.py
 * This code reads in composition data from the composition.sph file generated from the relaxed model
 * The data is then saved as a list of lists which can be later read in in bestfit_total.py
 
