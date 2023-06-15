@@ -69,4 +69,3 @@ def composition_fit(data, comp_splines):
         amonmrho = amrho[int(nbini)] / amasstot # mass fraction of the particle based on the bin it falls into
         mycompfile.write(f'{h1(amonmrho)}    {he3(amonmrho)}    {he4(amonmrho)}    {c12(amonmrho)}\
     {n14(amonmrho)}    {o16(amonmrho)}    {ne20(amonmrho)}    {mg24(amonmrho)}\n')
-
