@@ -17,7 +17,7 @@ def composition_reader():
 
     # profile15 is the default value
     # change if you are using a different profile
-    with open("profile15.data", "r") as f:
+    with open("profile45.data", "r") as f:
         # mass fraction
         q = []
 
@@ -42,7 +42,6 @@ def composition_reader():
                 # determines the header data and finds the correct column to pull data from to append
                 headers = line.split()
                 q_index = headers.index("q")
-                print(q_index)
                 h1_index = headers.index("h1")
                 he3_index = headers.index("he3")
                 he4_index = headers.index("he4")
