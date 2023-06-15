@@ -21,7 +21,7 @@ Note that the original code was written by Hans Vanderzyden and ChatGPT was used
 lot of the conversion
 """
 
-def readit(nnit, iform):
+def readit_collision(nnit, iform):
     
     # imports the necessary modules for the binary file readin
     import mmap # used for optimization
@@ -111,6 +111,8 @@ def readit(nnit, iform):
                 NCHK = ntot
                 print('NCHK=', NCHK)
 
+                m = 0
+
                 # assigns values for each particle
                 for i in range(ntot):
                     offset += np.dtype(np.float64).itemsize
@@ -126,27 +128,30 @@ def readit(nnit, iform):
 
                     # adds the particle data to each list intialized above
                     # check if i can speed this up without append
-                    x.append(xvar)
-                    y.append(yvar)
-                    z.append(zvar)
-                    am.append(amvar)
-                    hp.append(hpvar)
-                    rho.append(rhovar)
-                    vx.append(vxvar)
-                    vy.append(vyvar)
-                    vz.append(vzvar)
-                    vxdot.append(vxdotvar)
-                    vydot.append(vydotvar)
-                    vzdot.append(vzdotvar)
-                    u.append(uvar)
-                    udot.append(udotvar)
-                    grpot.append(grpotvar)
-                    meanmolecular.append(meanmolecularvar)
-                    cc.append(ccvar)
-                    divv.append(divvvar)
-                    aa.append(aavar)
-                    bb.append(bbvar)
-                    dd.append(ddvar)
+                    if rhovar != 0:
+                        x.append(xvar)
+                        y.append(yvar)
+                        z.append(zvar)
+                        am.append(amvar)
+                        hp.append(hpvar)
+                        rho.append(rhovar)
+                        vx.append(vxvar)
+                        vy.append(vyvar)
+                        vz.append(vzvar)
+                        vxdot.append(vxdotvar)
+                        vydot.append(vydotvar)
+                        vzdot.append(vzdotvar)
+                        u.append(uvar)
+                        udot.append(udotvar)
+                        grpot.append(grpotvar)
+                        meanmolecular.append(meanmolecularvar)
+                        cc.append(ccvar)
+                        divv.append(divvvar)
+                        aa.append(aavar)
+                        bb.append(bbvar)
+                        dd.append(ddvar)
+                    else:
+                        m += 1
 
                 print("DATA READ IN")
 
@@ -176,6 +181,8 @@ def readit(nnit, iform):
     # this runs if there is no more matching file requested
     else:
         print('Ran out of output files')
+    
+    ntot -= m
 
     # updates all velocities based on their accelerations
     # to corerct the leapfrog integration technique
@@ -232,3 +239,4 @@ def readit(nnit, iform):
     }
 
     return data
+    
