@@ -41,6 +41,7 @@ def main():
     if option == 1 or option == 3:
         mode = input("Which type of input file would you like to feed to MESA?\n    DT\n    PT\n    DE\n    DP\n: ")
         neos = int(input("Which type of eos is your simulation using?\n    Analytic (default SPH) [1]\n    MESA [2]\n: "))
+        comp_data = compsph_readit()
     nnit_input_start = int(input("Starting out file (int): "))
     nnit_input_end = int(input("Ending out file (int, must be >= the start value): "))
     frequency = int(input("Step size between files: "))
@@ -50,7 +51,6 @@ def main():
             print(f"--------------------------Output file {nnit_input}--------------------------")
             readit_data = readit_collision(nnit_input, 4) # iform is always 4 (usually inputted from a separate routine, but I have it set to 4)
             if option == 1:
-                comp_data = compsph_readit()
                 bestfit(readit_data, comp_data, neos)
                 entropy_reader(mode)
             elif option == 2:
@@ -61,9 +61,8 @@ def main():
                 # Option 2 still needs to be run with the original relaxation to create composition.sph
 
                 component_data = component_reader(nnit_input) # makes a list of the values of the component for each particle
-                orig_comp_data = compsph_readit() # reads the composition data from composition.sph - move outside the loop
                 # finds the bound particle and composition data to be passed to bestfit_total.py
-                bound_data, bound_composition_data = bound_particle_data(readit_data, component_data, orig_comp_data)
+                bound_data, bound_composition_data = bound_particle_data(readit_data, component_data, comp_data)
                 # creates composition.dat, entropy.dat, and angular_momentum.dat
                 bestfit(bound_data, bound_composition_data, neos)
                 entropy_reader(mode)
