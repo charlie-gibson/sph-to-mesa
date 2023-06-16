@@ -91,7 +91,7 @@ The following codes are used to determine which particles belong to the stellar 
 
 --------------------------------------------------------------------------------------------------------------------------------------
 
-# Expectations, Limitations Further MESA Analysis
+# Expectations, Limitations, and Further MESA Analysis
 1. The entropy file format might have an effect on the star's ability to converge down to a model. MESA's EOS tables work best when providing it a density and temperature (DT) pair. Otherwise, it will determine the temperature or density from another subroutine. If you are observing a star that is not in hydrostatic equilibrium, you may find that it is easiest to use a DT pair for your analysis
 2. In your MESA inlist, you want to make sure that you include several variables in various settings:
 
