@@ -17,7 +17,17 @@ def component_reader(component_file_number:str):
     z = []
     component = []
 
-    with open(f"comp0{component_file_number}.sph", "r") as f:
+    # used to ensure correct naming of the file
+    if component_file_number < 10:
+        FNAME = f'comp000{component_file_number}.sph'
+    elif component_file_number < 100:
+        FNAME = f'comp00{component_file_number}.sph'
+    elif component_file_number < 1000:
+        FNAME = f'comp0{component_file_number}.sph'
+    else:
+        FNAME = f'comp{component_file_number}.sph'
+
+    with open(FNAME, "r") as f:
 
         n = 0
 
