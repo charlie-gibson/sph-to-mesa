@@ -125,11 +125,11 @@ and the line that needs to be edited is line 3062. It should read
 
   5. As of now, this method has several limitations to the scenarios that it can apply towards.
 
-    ### Symmetry
+## Symmetry
 
     MESA assumes spherical symmetry, whereas StarSmasher and other SPH models can model 3D asymmetries. Because of this, it is important that your star from SPH is roughly spherical. The code should not have any issues creating the files, and MESA may be able to read them in. However, the resulting evolution will be that of a spherical star with spherical zones, even though the data used to define these zones are not spherical distributed and may not be indicative of the stellar structure (e.g. a tail or a "stretched out" star)
 
-    ### Metallicity
+## Metallicity
 
   If you want to ensure that your SPH run is to be accurate to the MESA definitions of the thermodynamic values, you will need to use the MESA EOS tables. As of now, I only have access to tables that account for a metallicity of Z=0.02. This limitation can be simply (although tediously) remedied by writing an eos table file that accounts for a different metallicity values. However, this method should work if further MESA EOS tables were utilized assuming that they follow the desired format the the SPH uses to read the data in.
   This becomes increasingly complicated for older giant stars (i.e. Hydrogen-burning stars), whose metallicities may vary dramatically in the core of the star compared to its outer layers. If possible, the MESA EOS tables used would need to account for more than just one metallicity.
