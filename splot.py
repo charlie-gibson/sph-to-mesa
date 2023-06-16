@@ -20,7 +20,6 @@ user = str(getpass.getuser()) # gets the username of the user (example: vanderzy
 sys.path.insert(0, f'/home/{user}/splot_directories/python_splot') # this location may change for the future, if so this line must be edited accordingly
 # these files must all be imported after the above two lines
 from bestfit import bestfit
-from grapefree_readit import grapefree_readit
 from readit import readit
 from readit_collision import readit_collision
 from compsph_readit import compsph_readit
