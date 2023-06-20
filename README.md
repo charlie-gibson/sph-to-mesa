@@ -123,7 +123,7 @@ and the line that needs to be edited is line 3062. It should read
 
     logT_guess = log10(min(T_guess_gas,T_guess_rad))
 
-  5. As of now, this method has several limitations to the scenarios that it can apply towards.
+  5. As of now, this method has several limitations to the scenarios that it can apply towards:
 
 ## Symmetry
 
@@ -131,9 +131,9 @@ MESA assumes spherical symmetry, whereas StarSmasher and other SPH models can mo
 
 ## Metallicity
 
-  If you want to ensure that your SPH run is to be accurate to the MESA definitions of the thermodynamic values, you will need to use the MESA EOS tables. As of now, I only have access to tables that account for a metallicity of Z=0.02. This limitation can be simply (although tediously) remedied by writing an eos table file that accounts for a different metallicity values. However, this method should work if further MESA EOS tables were utilized assuming that they follow the desired format the the SPH uses to read the data in.
+  If you want to ensure that your SPH run is to be accurate to the MESA definitions of the thermodynamic values, you will need to use the MESA EOS tables. As of now, I only have access to tables that account for a metallicity of Z=0.02. This limitation can be simply (although tediously) remedied by writing an EOS table file that accounts for a different metallicity values. However, this method should work if further MESA EOS tables were utilized assuming that they follow the desired format the the SPH uses to read the data in.
   
-  This becomes increasingly complicated for older giant stars (i.e. Hydrogen-burning stars), whose metallicities may vary dramatically in the core of the star compared to its outer layers. If possible, the MESA EOS tables used would need to account for more than just one metallicity.
+  This becomes increasingly complicated for older giant stars (i.e. Helium-burning stars), whose metallicities may vary dramatically in the core of the star compared to its outer layers. If possible, the MESA EOS tables used would need to account for more than just one metallicity.
   
   It is important to note that the analytic EOS method is also a good estimate and may be an okay approximation for the thermodynamic values that would be used by MESA. As mentioned above, it is missing some factors in the pressure, energy, temperature, etc. that may offset the values and not provide as accurate of a stellar evolution as possible, but if the MESA EOS table is unable to work, the analytic EOS could be an alright way to estimate the evolution of the star for non-extreme models (where extreme could include things like very high-density models where degeneracy pressures would be important or very low density/temperature particles where recombination may significantly offset the energies and temperatures).
 
