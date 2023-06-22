@@ -73,7 +73,7 @@ def bestfit(data, comp_data, neos):
     nbins = 16001 # number of bins for sorting data
     nbinsbf = 300 # number of bins for the best fit data: higher values means higher resolution
     alogrhomin = -10 # 10^-10 is the lowest density
-    alogrhomax = 2.1 # 10^10 is the highest density
+    alogrhomax = 4 # 10^10 is the highest density
 
     # constants used for calculations
     gravconst = 6.67390e-08 # m^3 / (kg s^2)
@@ -112,7 +112,8 @@ def bestfit(data, comp_data, neos):
     if neos == 1:
         rhocgs = rho*munit/runit**3
         # print(rhocgs)
-        ucgs = u*gravconst*munit/runit
+        for i in range(ntot):
+            ucgs[i] = u[i]*gravconst*munit/runit
         # print(ucgs)
         qval = qconst*rhocgs/meanmolecular
         # print(qval)
