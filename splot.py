@@ -17,7 +17,7 @@ import sys
 import getpass
 import os
 user = str(getpass.getuser()) # gets the username of the user (example: vanderzyden01) to use in line 4 (for the splot folder location)
-sys.path.insert(0, f'/home/{user}/splot_directories/python_splot') # this location may change for the future, if so this line must be edited accordingly
+sys.path.insert(0, f'/home/{user}/sph-to-mesa/python_splot/') # this location may change for the future, if so this line must be edited accordingly
 # these files must all be imported after the above two lines
 from bestfit import bestfit
 from readit_collision import readit_collision
