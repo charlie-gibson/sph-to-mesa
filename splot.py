@@ -20,7 +20,6 @@ user = str(getpass.getuser()) # gets the username of the user (example: vanderzy
 sys.path.insert(0, f'/home/{user}/splot_directories/python_splot') # this location may change for the future, if so this line must be edited accordingly
 # these files must all be imported after the above two lines
 from bestfit import bestfit
-from readit import readit
 from readit_collision import readit_collision
 from compsph_readit import compsph_readit
 from composition_jpt_entropy_reader import entropy_reader
@@ -30,13 +29,15 @@ from composition_fit import composition_fit
 from component_reader import component_reader
 from bound_particles import bound_particle_data
 from component_best3 import compbest3
+from pa_plot import pa_plot
+from energy_graph import v
 
 def main():
     ### Similar to pplot.f
     # print to the user to ask for the option number for bestfit, composition, etc.
-    option = int(input("Which option would you like to do?\n    Generate dat files for MESA [1] \n\
-    Generate composition.sph [2] \n    Analyze a star from a collision [3] \n\
-    Determine components [4] \n: "))
+    option = int(input("Which option would you like to do?\n    Generate MESA files - no collision [1] \n\
+    Generate composition.sph [2] \n    Generate MESA files - collision [3] \n\
+    Determine components [4] \n    pa plot [5] \n    v plot [6] \n: "))
     if option == 1 or option == 3:
         mode = input("Which type of input file would you like to feed to MESA?\n    DT\n    PT\n    DE\n    DP\n: ")
         neos = int(input("Which type of eos is your simulation using?\n    Analytic (default SPH) [1]\n    MESA [2]\n: "))
@@ -67,6 +68,11 @@ def main():
                 entropy_reader(mode)
             elif option == 4:
                 compbest3(nnit_input,readit_data)
+            elif option == 5:
+                profile_num = int(input('What profile is used in the SPH relaxation (just number)? '))
+                pa_plot(readit_data,profile_num,nnit_input)
+            elif option == 6:
+                v()
             print("Output data analysis completed.")
             nnit_input += frequency
             if nnit_input_end < nnit_input_start:
