@@ -12,7 +12,7 @@ Department of Physics
 def compbest3(nout, data):
     global firstt, icomp
 
-    from readit import readit
+    from readit_collision import readit_collision
     import numpy as np
     from calccom import calccom
 

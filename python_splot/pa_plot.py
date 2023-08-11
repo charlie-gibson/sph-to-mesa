@@ -24,6 +24,7 @@ def pa_plot(data, profile_num, outfile):
     gravconst = 6.67390e-08 # m^3 / (kg s^2)
     munit = 1.9891e33 # kg
     runit = 6.9599e10 # m
+    tunit = np.sqrt(runit**3/(gravconst*munit))
     boltz = 1.380658e-16 # erg/kelvin
     crad = 2.997924580e10 # cm/sec  NOTE: crad has a different meaning in MESA
     planck = 6.6260755e-27 # gram cm^2/sec
@@ -53,6 +54,9 @@ def pa_plot(data, profile_num, outfile):
         pgas[n] = rhocgs[n] * boltz * temp[n] / (meanmolecular[n])
         prad[n] = arad * temp[n]**4/3
         ptot[n] = pgas[n] + prad[n]
+
+    for j in ptot:
+        j=j/((munit*runit/tunit**2)/(munit**2))
 
     # determines the radius and A (P/rho^(5/3)) values
     r = np.sqrt(x**2 + y**2 + z**2)
@@ -90,7 +94,7 @@ def pa_plot(data, profile_num, outfile):
     ahydro = []
 
     # rounds the column to the next highest multiple of 10
-    colname = int(math.ceil(outfile/10)*10)
+    colname = int(math.floor(outfile/10)*10)
 
     # same naming convention as in readit_collision.py
     if colname < 10:
@@ -137,6 +141,7 @@ def pa_plot(data, profile_num, outfile):
 
     axs[0,1].scatter(r,am,c='black',s=0.25,marker='.')
     axs[0,1].set_ylabel(r'${m_i}$',fontsize=7)
+    axs[0,1].set_yscale('log')
 
     axs[1,1].scatter(r,hp,c='black',s=0.25,marker='.')
     axs[1,1].set_ylabel(r'${h_i}$',fontsize=7)

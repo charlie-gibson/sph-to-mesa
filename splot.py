@@ -31,6 +31,7 @@ from bound_particles import bound_particle_data
 from component_best3 import compbest3
 from pa_plot import pa_plot
 from energy_graph import v
+from sph_XY import xy_reader
 
 def main():
     ### Similar to pplot.f
@@ -42,6 +43,11 @@ def main():
         mode = input("Which type of input file would you like to feed to MESA?\n    DT\n    PT\n    DE\n    DP\n: ")
         neos = int(input("Which type of eos is your simulation using?\n    Analytic (default SPH) [1]\n    MESA [2]\n: "))
         comp_data = compsph_readit()
+    if option == 2 or option ==5:
+        profile_num=int(input('What profile is used in the SPH relaxation (just number)? '))
+    if option == 6:
+        v()
+        raise SystemExit
     nnit_input_start = int(input("Starting out file (int): "))
     nnit_input_end = int(input("Ending out file (int, must be >= the start value): "))
     frequency = int(input("Step size between files: "))
@@ -53,8 +59,9 @@ def main():
             if option == 1:
                 bestfit(readit_data, comp_data, neos)
                 entropy_reader(mode)
+                xy_reader()
             elif option == 2:
-                q, elements = composition_reader()
+                q, elements = composition_reader(profile_num)
                 splines = comp_spline(q, elements)
                 composition_fit(readit_data, splines)
             elif option == 3:
@@ -66,13 +73,11 @@ def main():
                 # creates composition.dat, entropy.dat, and angular_momentum.dat
                 bestfit(bound_data, bound_composition_data, neos)
                 entropy_reader(mode)
+                xy_reader()
             elif option == 4:
                 compbest3(nnit_input,readit_data)
             elif option == 5:
-                profile_num = int(input('What profile is used in the SPH relaxation (just number)? '))
                 pa_plot(readit_data,profile_num,nnit_input)
-            elif option == 6:
-                v()
             print("Output data analysis completed.")
             nnit_input += frequency
             if nnit_input_end < nnit_input_start:

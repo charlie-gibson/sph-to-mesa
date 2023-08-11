@@ -11,13 +11,13 @@ Department of Physics
 05/26/2023
 """
 
-def composition_reader():
+def composition_reader(profile_num):
 
     import numpy as np
 
     # profile15 is the default value
     # change if you are using a different profile
-    with open("profile45.data", "r") as f:
+    with open(f"profile{profile_num}.data", "r") as f:
         # mass fraction
         q = []
 

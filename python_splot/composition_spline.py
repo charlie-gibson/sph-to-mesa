@@ -80,10 +80,13 @@ def comp_spline(q, elements):
 
     x = np.linspace(np.min(q), np.max(q), len(q))
 
-    plt.plot(x, h1fit(x))
-    plt.title("Hydrogen Bestfit", fontsize=9)
-    plt.xlabel("$q$")
-    plt.ylabel("$H1$")
+    f,ax=plt.subplots()
+
+    ax.plot(x,h1fit(x),color='blue',label='H1 fit')
+    ax.plot(x,he4fit(x),color='mediumpurple',label='He4 fit')
+    ax.set_xlabel(r'$xq$')
+    ax.set_ylabel(r'fraction')
+    plt.title("Composition Bestfit", fontsize=9)
     plt.show()
 
     return comp_splines

@@ -71,8 +71,8 @@ def bestfit(data, comp_data, neos):
     
     # variables
     nbins = 16001 # number of bins for sorting data
-    nbinsbf = 300 # number of bins for the best fit data: higher values means higher resolution
-    alogrhomin = -10 # 10^-10 is the lowest density
+    nbinsbf = 500 # number of bins for the best fit data: higher values means higher resolution
+    alogrhomin = -13 # 10^-10 is the lowest density
     alogrhomax = 4 # 10^10 is the highest density
 
     # constants used for calculations
@@ -212,6 +212,7 @@ def bestfit(data, comp_data, neos):
     radius = 0
     tavg = np.zeros(nbinsbf)
     pavg = np.zeros(nbinsbf)
+    r_array = np.zeros(ntot)
 
     # composition arrays
     h1avg = np.zeros(nbinsbf)
@@ -244,6 +245,8 @@ def bestfit(data, comp_data, neos):
         rvec = np.array([x[i] - xc, y[i] - yc, z[i] - zc]) # this provides the r vector of the particle
         vvec = np.array([(vx[i]-vxc), (vy[i]-vyc), (vz[i]-vzc)]) # this gives the velocity vector of the particle
         r = np.linalg.norm(rvec) # this is the length of the r vector from the center of mass
+        # print(r)
+        r_array[i] += r
         v = np.linalg.norm(vvec) # this is the speed of the v vector relative to the center of mass
         ravg[index] += r * am[i] # this gives the distance times the mass of the particle
         jrotavg[index] += am[i] * np.cross(rvec, vvec) # this gives the angular momentum times the mass of the particle
@@ -280,6 +283,42 @@ def bestfit(data, comp_data, neos):
 
         ammrhoavg[index] = ammrhoavg[index] + amonmrho * am[i]
 
+    # calculates how much of the mass is in the middle 50% of the radius
+
+    print(r_array)
+    print(am)
+    print(radius)
+    enclosed_mass = []
+    outer_mass = []
+    half_r=radius/2
+    
+    for i,j in zip(r_array,am):
+        if i < half_r:
+            enclosed_mass.append(j)
+        else:
+            outer_mass.append(j)
+    enclosed_mass = np.array(enclosed_mass)
+    outer_mass = np.array(outer_mass)
+    mass=np.sum(enclosed_mass)
+    mass_out=np.sum(outer_mass)
+    print('mass in 1/2 radius = ',mass)
+    print('mass out 1/2 radius = ',mass_out)
+    print('num particles in 1/2 radius',enclosed_mass.shape)
+    print('num particles out 1/2 radius',outer_mass.shape)
+
+    r_orig_array=np.argsort(r_array)
+    ascending_r = np.sort(r_array)
+
+    half_mass=np.sum(am)/2
+    print(half_mass)
+    half_mass_array = np.array([])
+    for x,y in zip(ascending_r,r_orig_array):
+        if np.sum(half_mass_array) < half_mass:
+            half_mass_array = np.append(half_mass_array,am[y])
+
+    print('half mass = ', np.sum(half_mass_array))
+    print('num particles = ', half_mass_array.shape)
+    
     GAM = 5/3
     print(f"GAMMA = {GAM}")
 
@@ -311,11 +350,12 @@ def bestfit(data, comp_data, neos):
 
             # writes all values to bestfit.sph. If there is a NaN value
             # anywhere in the code, all values for that bin will be skipped
-            if not np.isnan(ammrhoavg[index] * amasstot * munit) or not np.isnan(ravg[index] *\
-                runit) or not np.isnan(apressure * gravconst * (munit / runit ** 2) ** 2) or not\
+            if (not np.isnan(ammrhoavg[index] * amasstot * munit) or not np.isnan(ravg[index] *\
+                runit) or not np.isnan(pavg[index] * gravconst * (munit / runit ** 2) ** 2) or not\
                 np.isnan(rhoavg[index] * munit / runit ** 3) or not np.isnan(uiavg[index] * \
                 gravconst * munit / runit) or not np.isnan(np.linalg.norm(jrotavg[index]) * \
-                runit**2 / (np.sqrt(runit**3/(gravconst * munit)))):
+                runit**2 / (np.sqrt(runit**3/(gravconst * munit))))) and \
+                (pavg[index] != 0 or uiavg[index] != 0 or tavg[index] != 0):
                 f.write('{:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e}\n'.format(
                 ammrhoavg[index] * amasstot * munit,
                 ravg[index] * runit,

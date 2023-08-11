@@ -31,8 +31,8 @@ def composition_fit(data, comp_splines):
 
     nbins = 1601 # number of bins for sorting data
     nbinsbf = 100 # number of bins for the best fit data: higher values means higher resolution
-    alogrhomin = -7.9 # 10^-10 is the lowest density
-    alogrhomax = 2.1 # 10^10 is the highest density
+    alogrhomin = -10 # 10^-10 is the lowest density
+    alogrhomax = 5 # 10^10 is the highest density
     amasstot = np.sum(am)
 
     # initializes amrho
