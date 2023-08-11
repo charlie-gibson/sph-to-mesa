@@ -368,6 +368,18 @@ def entropy_reader(mode):
 
     myjrotfile.close()
 
+    # calculates the total X, Y, and Z
+
+    weightedX=0
+    weightedY=0
+    for i in range(len(q)-1):
+        xq_frac=q[i+1]-q[i]
+        weightedX+=positiveh1[i]*xq_frac
+        weightedY+=positivehe4[i]*xq_frac
+
+    Z=1-weightedX-weightedY
+    print(f'X: {weightedX}\nY: {weightedY}\nZ: {Z}')
+    
     # subplots the data for visual representation as a function of q
 
     f,ax = plt.subplots(3,2,sharex=True,figsize=(8,8))
@@ -412,8 +424,8 @@ def entropy_reader(mode):
     f,ax=plt.subplots()
 
     #ax.plot(q,h1fit,color='mediumpurple',label='H1 fraction')
-    ax.plot(q,positiveh1,color='mediumpurple',label='H1 fraction')
-    ax.plot(q,positivehe4,color='blue',label='He4 fraction')
+    ax.plot(q,positiveh1,color='mediumpurple',label='H1 fraction',linewidth=0.75)
+    ax.plot(q,positivehe4,color='blue',label='He4 fraction',linewidth=0.75)
     #ax.plot(q,he4fit,color='blue',label='He4 fraction')
     #ax.plot(q_mass_fraction,h1list,color='black',marker='x')
     #ax.plot(q_mass_fraction,he4list,color='black',marker='x')

@@ -59,21 +59,18 @@ def main():
             if option == 1:
                 bestfit(readit_data, comp_data, neos)
                 entropy_reader(mode)
-                xy_reader()
             elif option == 2:
                 q, elements = composition_reader(profile_num)
                 splines = comp_spline(q, elements)
                 composition_fit(readit_data, splines)
             elif option == 3:
                 # Option 2 still needs to be run with the original relaxation to create composition.sph
-
                 component_data = component_reader(nnit_input) # makes a list of the values of the component for each particle
                 # finds the bound particle and composition data to be passed to bestfit_total.py
                 bound_data, bound_composition_data = bound_particle_data(readit_data, component_data, comp_data)
                 # creates composition.dat, entropy.dat, and angular_momentum.dat
                 bestfit(bound_data, bound_composition_data, neos)
                 entropy_reader(mode)
-                xy_reader()
             elif option == 4:
                 compbest3(nnit_input,readit_data)
             elif option == 5:
