@@ -49,6 +49,9 @@ The following scripts are for generating the necessary MESA files:
 * Finally, it writes the data points of each spline and the corresponding q value to three new files, entropy.dat, composition.dat, and angular_momentum.dat
 * The file is formatted to have the first line have the number of zones in the new star (and the number of elements in composition.dat) followed by a new line for every zone, starting with the q value, followed by the appropriate value to be analyzed. angular_momentum.dat has the specific angular momentum (q   j), and composition.dat has the element abundances (q   H1   He3   He4   C12   N14   O16   Ne20   Mg24). The entropy can have several formats depending on the input. These include (q, rho, T), (q, P, T), or (q, rho, u).
 
+## sph_XY.py
+* This code reads in the data written to the composition.dat file and determines the star's overall X and Y values. This acts as a check for relaxed stars and for further analysis for stars that undergo dynamical interactions
+
 The following scripts are for generating the correct composition files:
 
 ## read_orig_profile_comp.py
