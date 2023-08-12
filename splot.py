@@ -31,7 +31,6 @@ from bound_particles import bound_particle_data
 from component_best3 import compbest3
 from pa_plot import pa_plot
 from energy_graph import v
-from sph_XY import xy_reader
 
 def main():
     ### Similar to pplot.f

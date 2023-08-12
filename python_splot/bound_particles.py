@@ -7,7 +7,7 @@ Allegheny College
 Department of Physics
 """
 
-def bound_particle_data(data, component, composition):
+def bound_particle_data(data, component, composition,component_val=1):
 
     import numpy as np
 
@@ -77,7 +77,7 @@ def bound_particle_data(data, component, composition):
     n = 0
 
     for value in component:
-        if value == 1:
+        if value == component_val:
             boundx.append(x[n])
             boundy.append(y[n])
             boundz.append(z[n])

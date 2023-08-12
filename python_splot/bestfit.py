@@ -376,7 +376,7 @@ def bestfit(data, comp_data, neos):
                     anoteqfrac = 1 - 0.5 * (ammrhoavg[index]+ammrhoavg[index-1])
                     print(f"FRACTION NOT IN EQUILIBRIUM ={anoteqfrac} ")
 
-        apressure = aimax * rhomin * (GAM - 1)
+        #apressure = aimax * rhomin * (GAM - 1)
 
         # writes the data for the outermost layers of the star
         f.write("{:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e}\n".format(amasstot * munit, radius * runit,
