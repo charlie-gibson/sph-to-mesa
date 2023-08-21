@@ -1,5 +1,5 @@
 """
-This script calls the py file from splot_directories.
+This code calls the py file from splot_directories.
 
 Using the read in data, this code sorts every particle based on the density
 into many bins. It also uses the MESA EOS table or the analytical EOS equations
@@ -10,7 +10,7 @@ The original Fortran file (written by James Lombardi) states:
 Analyze the results of a collision run and output important
 numbers for a summary table
 
-Charles Gibson
+Charles Gibson & James Lombardi
 Allegheny College
 Department of Physics
 """
@@ -213,6 +213,7 @@ def bestfit(data, comp_data, neos):
     tavg = np.zeros(nbinsbf)
     pavg = np.zeros(nbinsbf)
     r_array = np.zeros(ntot)
+    amavgcomp=np.zeros(nbinsbf)
 
     # composition arrays
     h1avg = np.zeros(nbinsbf)
@@ -228,8 +229,23 @@ def bestfit(data, comp_data, neos):
     for i in range(ntot):
         alogrhoi = np.log10(rho[i]) # finds the log of the density of each particle
         nbini = int((alogrhoi - alogrhomin) * (nbins - 1) / (alogrhomax - alogrhomin)) # index of the bin that the particle is in
+        nbinimin=nbini
+        smoothing_factor=5
+        for ii in range(nbini-1,-1,-1):
+            if amrho[ii] >= min(amrho[nbini] + smoothing_factor * am[i], amrho[0]):
+                nbinimin=ii
+                break
+            nbinimax=nbini
+        for ii in range(nbini+1,nbins):
+            if amrho[ii] <= max(amrho[nbini] - smoothing_factor * am[i], 0):
+                nbinimax=ii
+                break
         amonmrho = amrho[nbini] / amasstot # mass fraction of the particle based on the bin it falls into
         index = int(amonmrho * nbinsbf)
+        amonmrhomin=amrho[nbinimin]/amasstot # mass fraction of the particle based on the bin it fall sinto
+        indexmax=min(int(amonmrhomin*nbinsbf),nbinsbf-1) # Note: "max" on left-hand side because smaller density is larger index value
+        amonmrhomax=amrho[nbinimax]/amasstot # mass fraction of the particle based on the bin it falls into
+        indexmin=int(amonmrhomax*nbinsbf) # Note:"min" on left-hand side because larger density is smaller index value
         if index >= nbinsbf:
             print("Warning: index >= nbinsbf", index)
             index = nbinsbf - 1
@@ -254,14 +270,33 @@ def bestfit(data, comp_data, neos):
         pavg[index] += pgas[i] * am[i]
 
         # composition data
-        h1avg[index] += h1[i] * am[i]
-        he3avg[index] += he3[i] * am[i]
-        he4avg[index] += he4[i] * am[i]
-        c12avg[index] += c12[i] * am[i]
-        n14avg[index] += n14[i] * am[i]
-        o16avg[index] += o16[i] * am[i]
-        ne20avg[index] += ne20[i] * am[i]
-        mg24avg[index] += mg24[i] * am[i]
+
+        midpoint = amonmrho * nbinsbf - 0.5
+        max_distance = max(indexmax-midpoint, midpoint-indexmin)+1
+        denominator = 0
+        #print(indexmin, indexmax)
+        for index2 in range(indexmin, indexmax + 1):
+            distance = abs(index2 - midpoint)
+            q = distance / max_distance
+            kernel_value = 2 * q**3 - 3 * q**2 + 1 # A simple function that has a slope of zero at the middle (q=0) and edges
+            denominator += kernel_value
+        for index2 in range(indexmin, indexmax + 1):
+            distance = abs(index2 - midpoint)
+            max_distance = indexmax + 1 - midpoint
+            q = distance / max_distance
+            kernel_value = 2 * q**3 - 3 * q**2 + 1 # A simple function that has a slope of zero at the edges and middle
+            fraction = kernel_value / denominator
+            #print(len(amavgcomp))
+            #print(index2)
+            amavgcomp[index2] += am[i]*fraction
+            h1avg[index2] += h1[i] * am[i] * fraction
+            he3avg[index2] += he3[i] * am[i] * fraction
+            he4avg[index2] += he4[i] * am[i] * fraction
+            c12avg[index2] += c12[i] * am[i] * fraction
+            n14avg[index2] += n14[i] * am[i] * fraction
+            o16avg[index2] += o16[i] * am[i] * fraction
+            ne20avg[index2] += ne20[i] * am[i] * fraction
+            mg24avg[index2] += mg24[i] * am[i] * fraction
 
         # finds these values for the outermost particle
         if r > radius:
@@ -283,6 +318,8 @@ def bestfit(data, comp_data, neos):
 
         ammrhoavg[index] = ammrhoavg[index] + amonmrho * am[i]
 
+    #print(f'H1 average: {h1avg}')
+        
     # calculates how much of the mass is in the middle 50% of the radius
 
     print(r_array)
@@ -303,8 +340,8 @@ def bestfit(data, comp_data, neos):
     mass_out=np.sum(outer_mass)
     print('mass in 1/2 radius = ',mass)
     print('mass out 1/2 radius = ',mass_out)
-    print('num particles in 1/2 radius',enclosed_mass.shape)
-    print('num particles out 1/2 radius',outer_mass.shape)
+    print('num particles in 1/2 radius',enclosed_mass.shape[0])
+    print('num particles out 1/2 radius',outer_mass.shape[0])
 
     r_orig_array=np.argsort(r_array)
     ascending_r = np.sort(r_array)
@@ -317,7 +354,7 @@ def bestfit(data, comp_data, neos):
             half_mass_array = np.append(half_mass_array,am[y])
 
     print('half mass = ', np.sum(half_mass_array))
-    print('num particles = ', half_mass_array.shape)
+    print('num particles = ', half_mass_array.shape[0])
     
     GAM = 5/3
     print(f"GAMMA = {GAM}")
@@ -339,14 +376,14 @@ def bestfit(data, comp_data, neos):
             # apressure = uiavg[index] * rhoavg[index] * (GAM - 1)
 
             # updates composition data:
-            h1avg[index] /= amavg[index]
-            he3avg[index] /= amavg[index]
-            he4avg[index] /= amavg[index]
-            c12avg[index] /= amavg[index]
-            n14avg[index] /= amavg[index]
-            o16avg[index] /= amavg[index]
-            ne20avg[index] /= amavg[index]
-            mg24avg[index] /= amavg[index]
+            h1avg[index] /= amavgcomp[index]
+            he3avg[index] /= amavgcomp[index]
+            he4avg[index] /= amavgcomp[index]
+            c12avg[index] /= amavgcomp[index]
+            n14avg[index] /= amavgcomp[index]
+            o16avg[index] /= amavgcomp[index]
+            ne20avg[index] /= amavgcomp[index]
+            mg24avg[index] /= amavgcomp[index]
 
             # writes all values to bestfit.sph. If there is a NaN value
             # anywhere in the code, all values for that bin will be skipped
@@ -388,6 +425,14 @@ def bestfit(data, comp_data, neos):
                                                        tmax,
                                                        h1max, he3max, he4max, c12max, n14max, o16max, ne20max, mg24max
                                                        ))
+
+        f.close()
+
+    with open('sph_star.dat','w') as f:
+        f.write(f'Mass:                             {np.sum(am)}\n')
+        f.write(f'Radius:                           {radius}\n')
+        f.write(f'Particles:                        {ntot}\n')
+        f.write(f'Particles for inner 50% of mass:  {half_mass_array.shape[0]}\n')
 
         f.close()
 

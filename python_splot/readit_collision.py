@@ -211,32 +211,83 @@ def readit_collision(nnit, iform):
             vx[i] = vxold * np.cos(theta) - vyold * np.sin(theta) - np.sqrt(omega2) * x[i]
             vy[i] = vxold * np.sin(theta) + vyold * np.cos(theta) + np.sqrt(omega2) * y[i]
 
+    try:
+        with open('sph.start1u', 'rb') as f:
+            f.seek(4) # skips the first 4 bytes of the file (there is some sort of junk data, idk why?)
+            n1 = np.fromfile(f, dtype=np.int32, count=1, sep="")
+            n1=int(n1)
+            
+
+        with open('sph.start2u','rb') as f:
+            f.seek(4) # skips the first 4 bytes of the file (there is some sort of junk data, idk why?)
+            n2 = np.fromfile(f, dtype=np.int32, count=1, sep="")
+            n2=int(n2)
+            
+        print(n1, n2)
+            
+        if ntot!=n1+n2:
+            print('discrepancy')
+
+    except:
+        pass
+
     # places all lists of data into a dictionary to be passed to other files
-    data = {
-        'ntot':int(ntot),
-        'x':x,
-        'y':y,
-        'z':z,
-        'am':am,
-        'hp':hp,
-        'rho':rho,
-        'vx':vx,
-        'vy':vy,
-        'vz':vz,
-        'vxdot':vxdot,
-        'vydot':vydot,
-        'vzdot':vzdot,
-        'u':u,
-        'udot':udot,
-        'grpot':grpot,
-        'meanmolecular':meanmolecular,
-        'cc':cc,
-        'divv':divv,
-        'aa':aa,
-        'bb':bb,
-        'dd':dd,
-        'dt':dt
-    }
+    try:
+        data = {
+            'ntot':int(ntot),
+            'x':x,
+            'y':y,
+            'z':z,
+            'am':am,
+            'hp':hp,
+            'rho':rho,
+            'vx':vx,
+            'vy':vy,
+            'vz':vz,
+            'vxdot':vxdot,
+            'vydot':vydot,
+            'vzdot':vzdot,
+            'u':u,
+            'udot':udot,
+            'grpot':grpot,
+            'meanmolecular':meanmolecular,
+            'cc':cc,
+            'divv':divv,
+            'aa':aa,
+            'bb':bb,
+            'dd':dd,
+            'dtout':dtout,
+            'dt':dt,
+            'n1':n1,
+            'n2':n2
+        }
+    except:
+        data = {
+            'ntot':int(ntot),
+            'x':x,
+            'y':y,
+            'z':z,
+            'am':am,
+            'hp':hp,
+            'rho':rho,
+            'vx':vx,
+            'vy':vy,
+            'vz':vz,
+            'vxdot':vxdot,
+            'vydot':vydot,
+            'vzdot':vzdot,
+            'u':u,
+            'udot':udot,
+            'grpot':grpot,
+            'meanmolecular':meanmolecular,
+            'cc':cc,
+            'divv':divv,
+            'aa':aa,
+            'bb':bb,
+            'dd':dd,
+            'dtout':dtout,
+            'dt':dt
+        }
 
     return data
     

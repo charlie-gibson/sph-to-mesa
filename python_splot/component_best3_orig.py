@@ -8,9 +8,9 @@ Allegheny College
 Department of Physics
 """
 
-# data is read in usingzzzzzzzz readit.py and passed through splot.py
-def compbest3(nout,data,icomp,write=True):
-    global firstt
+# data is read in using readit.py and passed through splot.py
+def compbest3(nout, data):
+    global firstt, icomp
 
     from readit_collision import readit_collision
     import numpy as np
@@ -51,12 +51,12 @@ def compbest3(nout,data,icomp,write=True):
     #enth = u
     enth = np.zeros(ntot)
 
-#    icomp = np.empty(ntot)
-#    try:
-#        icomp[:n1] = 1
-#        icomp[n1:n1+n2] = 2
-#    except:
-#        icomp=[1]*ntot
+    icomp = np.empty(ntot)
+    try:
+        icomp[:n1] = 1
+        icomp[n1:n1+n2] = 2
+    except:
+        icomp=[1]*ntot
     #icomp=[1]*ntot
 
     
@@ -190,14 +190,10 @@ def compbest3(nout,data,icomp,write=True):
         fname = f'comp{nout:04d}.sph'
     else:
         fname = f'comp{nout:05d}.sph'
-
-    if write:
-        print(f"Writing to file {fname}")
-        with open(fname, 'w') as file:
-            file.write('x      y      z      component\n')
-            for i in range(ntot):
-                file.write(f"{x[i]} {y[i]} {z[i]} {int(icomp[i])}\n")
+    print(f"Writing to file {fname}")
+    with open(fname, 'w') as file:
+        file.write('x      y      z      component\n')
+        for i in range(ntot):
+            file.write(f"{x[i]} {y[i]} {z[i]} {int(icomp[i])}\n")
 
     print("Leaving COMPBEST3")
-
-    return icomp

@@ -19,7 +19,7 @@ import os
 user = str(getpass.getuser()) # gets the username of the user (example: vanderzyden01) to use in line 4 (for the splot folder location)
 sys.path.insert(0, f'/home/{user}/sph-to-mesa/python_splot/') # this location may change for the future, if so this line must be edited accordingly
 # these files must all be imported after the above two lines
-from bestfit import bestfit
+from bestfit_smoothed2 import bestfit
 from readit_collision import readit_collision
 from compsph_readit import compsph_readit
 from composition_jpt_entropy_reader import entropy_reader
@@ -44,6 +44,8 @@ def main():
         comp_data = compsph_readit()
     if option == 2 or option ==5:
         profile_num=int(input('What profile is used in the SPH relaxation (just number)? '))
+    if option==3:
+        component_val=int(input("Which star are you analyzing? "))
     if option == 6:
         v()
         raise SystemExit
@@ -66,12 +68,33 @@ def main():
                 # Option 2 still needs to be run with the original relaxation to create composition.sph
                 component_data = component_reader(nnit_input) # makes a list of the values of the component for each particle
                 # finds the bound particle and composition data to be passed to bestfit_total.py
-                bound_data, bound_composition_data = bound_particle_data(readit_data, component_data, comp_data)
+                bound_data, bound_composition_data = bound_particle_data(readit_data, component_data, comp_data,component_val)
                 # creates composition.dat, entropy.dat, and angular_momentum.dat
                 bestfit(bound_data, bound_composition_data, neos)
                 entropy_reader(mode)
             elif option == 4:
-                compbest3(nnit_input,readit_data)
+                write=False
+                try:
+                    dtout=readit_data['dtout']
+                    n1=readit_data['n1']
+                    icomp1=[1]*n1
+                    n2=readit_data['n2']
+                    icomp2=[2]*n2
+                    icomp=icomp1+icomp2
+                except:
+                    dtout=readit_data['dtout']
+                    ntot=readit_data['ntot']
+                    icomp=[1]*ntot
+                if dtout>10:
+                    step=int(dtout)
+                else:
+                    step=int(10/dtout)
+                for i in range(0,nnit_input+1,step):
+                    print(f'\n--------------------------------------Output File {i}----------------------------------------------')
+                    readit_data=readit_collision(i,4)
+                    if i==nnit_input:
+                        write=True
+                    icomp=compbest3(i,readit_data,icomp,write)
             elif option == 5:
                 pa_plot(readit_data,profile_num,nnit_input)
             print("Output data analysis completed.")

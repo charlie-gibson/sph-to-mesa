@@ -241,15 +241,18 @@ def entropy_reader(mode):
     prho53 = CubicSpline(q_mass_fraction, poverrho53)
     jrot = CubicSpline(q_mass_fraction, jrotlist)
     temp = CubicSpline(q_mass_fraction, templist)
-    h1 = CubicSpline(q_mass_fraction, h1list)
-    he3 = CubicSpline(q_mass_fraction, he3list)
-    he4 = CubicSpline(q_mass_fraction, he4list)
-    c12 = CubicSpline(q_mass_fraction, c12list)
-    n14 = CubicSpline(q_mass_fraction, n14list)
-    o16 = CubicSpline(q_mass_fraction, o16list)
-    ne20 = CubicSpline(q_mass_fraction, ne20list)
-    mg24 = CubicSpline(q_mass_fraction, mg24list)
-    r = CubicSpline(q_mass_fraction, radius)
+    r = CubicSpline(q_mass_fraction,radius)
+
+    # uses linear interpolation for composition
+    h1 = np.interp(x=q,xp=q_mass_fraction, fp=h1list)
+    he3 = np.interp(x=q,xp=q_mass_fraction, fp=he3list)
+    he4 = np.interp(x=q,xp=q_mass_fraction, fp=he4list)
+    c12 = np.interp(x=q,xp=q_mass_fraction, fp=c12list)
+    n14 = np.interp(x=q,xp=q_mass_fraction, fp=n14list)
+    o16 = np.interp(x=q,xp=q_mass_fraction, fp=o16list)
+    ne20 = np.interp(x=q,xp=q_mass_fraction, fp=ne20list)
+    mg24 = np.interp(x=q,xp=q_mass_fraction, fp=mg24list)
+    rcomp = np.interp(x=q,xp=q_mass_fraction, fp=radius)
 
     # now that spline is made, we need to write to the file
     q_mass_fraction.reverse()
@@ -278,14 +281,14 @@ def entropy_reader(mode):
     pressurefit = p(q)
     jrotfit = jrot(q)
     tempfit = temp(q)
-    h1fit = h1(q)
-    he3fit = he3(q)
-    he4fit = he4(q)
-    c12fit = c12(q)
-    n14fit = n14(q)
-    o16fit = o16(q)
-    ne20fit = ne20(q)
-    mg24fit = mg24(q)
+    #h1fit = h1(q)
+    #he3fit = he3(q)
+    #he4fit = he4(q)
+    #c12fit = c12(q)
+    #n14fit = n14(q)
+    #o16fit = o16(q)
+    #ne20fit = ne20(q)
+    #mg24fit = mg24(q)
     
     mycompositionfile = open("composition.dat", "w")
 
@@ -295,25 +298,25 @@ def entropy_reader(mode):
 
     
     
-    positiveh1 = [max(0, h1(k)) for k in q]
-    positiveh1 = [min(1, positiveh1[k]) for k in range(len(q))]
-    positivehe3 = [max(0, he3(k)) for k in q]
-    positivehe3 = [min(1, positivehe3[k]) for k in range(len(q))]
-    positivehe4 = [max(0, he4(k)) for k in q]
-    positivehe4 = [min(1, positivehe4[k]) for k in range(len(q))]
-    positivec12 = [max(0, c12(k)) for k in q]
-    positivec12 = [min(1, positivec12[k]) for k in range(len(q))]
-    positiven14 = [max(0, n14(k)) for k in q]
-    positiven14 = [min(1, positiven14[k]) for k in range(len(q))]
-    positiveo16 = [max(0, o16(k)) for k in q]
-    positiveo16 = [min(1, positiveo16[k]) for k in range(len(q))]
-    positivene20 = [max(0, ne20(k)) for k in q]
-    positivene20 = [min(1, positivene20[k]) for k in range(len(q))]
-    positivemg24 = [max(0, mg24(k)) for k in q]
-    positivemg24 = [min(1, positivemg24[k]) for k in range(len(q))]
+#    positiveh1 = [max(0, h1[k]) for k in q]
+#    positiveh1 = [min(1, positiveh1[k]) for k in range(len(q))]
+#    positivehe3 = [max(0, he3[k]) for k in q]
+#    positivehe3 = [min(1, positivehe3[k]) for k in range(len(q))]
+#    positivehe4 = [max(0, he4[k]) for k in q]
+#    positivehe4 = [min(1, positivehe4[k]) for k in range(len(q))]
+#    positivec12 = [max(0, c12[k]) for k in q]
+#    positivec12 = [min(1, positivec12[k]) for k in range(len(q))]
+#    positiven14 = [max(0, n14[k]) for k in q]
+#    positiven14 = [min(1, positiven14[k]) for k in range(len(q))]
+#    positiveo16 = [max(0, o16[k]) for k in q]
+#    positiveo16 = [min(1, positiveo16[k]) for k in range(len(q))]
+#    positivene20 = [max(0, ne20[k]) for k in q]
+#    positivene20 = [min(1, positivene20[k]) for k in range(len(q))]
+#    positivemg24 = [max(0, mg24[k]) for k in q]
+#    positivemg24 = [min(1, positivemg24[k]) for k in range(len(q))]
         
     for k in range(len(q)):
-        mycompositionfile.write(f"{q[k]}     {positiveh1[k]}     {positivehe3[k]}     {positivehe4[k]}     {positivec12[k]}     {positiven14[k]}     {positiveo16[k]}     {positivene20[k]}     {positivemg24[k]}\n")
+        mycompositionfile.write(f"{q[k]}     {h1[k]}     {he3[k]}     {he4[k]}     {c12[k]}     {n14[k]}     {o16[k]}     {ne20[k]}     {mg24[k]}\n")
         
 
     # this writes the entropy.dat file to be used in mesa
@@ -374,11 +377,16 @@ def entropy_reader(mode):
     weightedY=0
     for i in range(len(q)-1):
         xq_frac=q[i+1]-q[i]
-        weightedX+=positiveh1[i]*xq_frac
-        weightedY+=positivehe4[i]*xq_frac
+        weightedX+=h1[i]*xq_frac
+        weightedY+=he4[i]*xq_frac
 
     Z=1-weightedX-weightedY
     print(f'X: {weightedX}\nY: {weightedY}\nZ: {Z}')
+
+    with open('sph_star.dat','a') as f:
+        f.write(f'X:                                {weightedX}\n')
+        f.write(f'Y:                                {weightedY}\n')
+        f.write(f'Z:                                {Z}\n')
     
     # subplots the data for visual representation as a function of q
 
@@ -424,8 +432,8 @@ def entropy_reader(mode):
     f,ax=plt.subplots()
 
     #ax.plot(q,h1fit,color='mediumpurple',label='H1 fraction')
-    ax.plot(q,positiveh1,color='mediumpurple',label='H1 fraction',linewidth=0.75)
-    ax.plot(q,positivehe4,color='blue',label='He4 fraction',linewidth=0.75)
+    ax.plot(q,h1,color='mediumpurple',label='H1 fraction',linewidth=0.75)
+    ax.plot(q,he4,color='blue',label='He4 fraction',linewidth=0.75)
     #ax.plot(q,he4fit,color='blue',label='He4 fraction')
     #ax.plot(q_mass_fraction,h1list,color='black',marker='x')
     #ax.plot(q_mass_fraction,he4list,color='black',marker='x')
@@ -436,4 +444,11 @@ def entropy_reader(mode):
 
     ax.legend(loc='best')
         
+    plt.show()
+
+    f,ax=plt.subplots()
+
+    ax.plot(q_mass_fraction,h1list)
+    ax.plot(q_mass_fraction,he4list)
+
     plt.show()
