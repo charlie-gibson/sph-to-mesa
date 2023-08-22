@@ -85,15 +85,24 @@ def main():
                         #print(file)
                         file_number=int(file[4:8])
                         #print(file_number)
-                        if file_number >= largest_number and file_number <= nnit_input:
+                        if file_number >= largest_number and file_number < nnit_input:
                             largest_number=int(np.ceil((file_number+0.1)/10)*10)
+                            largest_file=file
+                        elif file_number >= laragest_number and file_number == nnit_input:
+                            largest_number=file_number
                             largest_file=file
                     #print(largest_file)
                     with open(largest_file,'r') as f:
                         icomp=[]
+                        n=0
                         for line in f:
-                            vals=line.split()
-                            icomp.append(vals[3])
+                            if n==0:
+                                n+=1
+                            else:
+                                vals=line.split()
+                                icomp.append(int(vals[3]))
+                    print(np.where(icomp==1))
+                    print(np.where(icomp==2))
                     #print(icomp)
                 except FileNotFoundError:
                     print('NO EXISTING comp****.sph FILE')
@@ -108,9 +117,7 @@ def main():
                     ntot=readit_data['ntot']
                     icomp=[1]*ntot
                     largest_number=0
-                except Exception as e:
-                    print('An error occurred: ',e)
-                print('icomp calculated')
+                print('ICOMP CALCULATED')
                 print('STARTING OUTPUT FILE: ',largest_number)
                 dtout=readit_data['dtout']
                 if dtout>10:
