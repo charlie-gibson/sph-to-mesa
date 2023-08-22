@@ -1,7 +1,7 @@
 """
 This code uses the data read in from the readit.py file as well as the
 splines from composition_spline.py to determine the composition of each particle.
-It then writes all values to composition.sph.
+It then writes all values to sph.composition.
 
 This will be used as reference for future interactions with the star, as we can
 assume that the composition of each particle will remain the same between interactions.
@@ -55,7 +55,7 @@ def composition_fit(data, comp_splines):
 
         amrho[nbini] += 0.5 * am[i] # adds 1/2 the mass of the particle to its corresponding bin
 
-    mycompfile = open("composition.sph", "w")
+    mycompfile = open("sph.composition", "w")
 
     # adds the particle mass to all the bins before the corresponding bin to account for mass enclosed
     # in isodense surfaces

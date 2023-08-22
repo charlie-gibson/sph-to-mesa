@@ -1,5 +1,5 @@
 """
-This code reads in all the data from the composition.sph file and saves it to
+This code reads in all the data from the sph.composition file and saves it to
 a dictionary to be read in by bestfit.py
 
 By default, there are 8 values of composition on each line. You will need to
@@ -22,8 +22,8 @@ def compsph_readit():
     ne20 = []
     mg24 = []
 
-    # reads composition.sph
-    with open("composition.sph", "r") as f:
+    # reads sph.composition
+    with open("sph.composition", "r") as f:
 
         # reads in each line, appending the correct composition data to the corresponding list
         for line in f:

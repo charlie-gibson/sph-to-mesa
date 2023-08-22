@@ -130,7 +130,7 @@ def compbest3(nout,data,icomp,write=True):
 
     # Iterate over component determination
     ncit = 0
-    NCITMAX = 100
+    NCITMAX = 200
     nchng = 1
     swapcase = 0
     while nchng != 0 and ncit < NCITMAX:

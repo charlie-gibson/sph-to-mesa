@@ -16,6 +16,9 @@ Department of Physics
 import sys
 import getpass
 import os
+import glob
+import re
+import numpy as np
 user = str(getpass.getuser()) # gets the username of the user (example: vanderzyden01) to use in line 4 (for the splot folder location)
 sys.path.insert(0, f'/home/{user}/sph-to-mesa/python_splot/') # this location may change for the future, if so this line must be edited accordingly
 # these files must all be imported after the above two lines
@@ -73,28 +76,57 @@ def main():
                 bestfit(bound_data, bound_composition_data, neos)
                 entropy_reader(mode)
             elif option == 4:
-                write=False
                 try:
-                    dtout=readit_data['dtout']
+                    file_list=glob.glob('comp****.sph')
+                    #print(file_list)
+                    largest_number=0
+                    largest_file='comp'
+                    for file in file_list:
+                        #print(file)
+                        file_number=int(file[4:8])
+                        #print(file_number)
+                        if file_number >= largest_number and file_number <= nnit_input:
+                            largest_number=int(np.ceil((file_number+0.1)/10)*10)
+                            largest_file=file
+                    #print(largest_file)
+                    with open(largest_file,'r') as f:
+                        icomp=[]
+                        for line in f:
+                            vals=line.split()
+                            icomp.append(vals[3])
+                    #print(icomp)
+                except FileNotFoundError:
+                    print('NO EXISTING comp****.sph FILE')
                     n1=readit_data['n1']
                     icomp1=[1]*n1
                     n2=readit_data['n2']
                     icomp2=[2]*n2
                     icomp=icomp1+icomp2
-                except:
-                    dtout=readit_data['dtout']
+                    largest_number=0
+                except KeyError:
+                    print('NO EXISITNG comp****.sph FILE\nONE STAR IN SPH SIMULATION')
                     ntot=readit_data['ntot']
                     icomp=[1]*ntot
+                    largest_number=0
+                except Exception as e:
+                    print('An error occurred: ',e)
+                print('icomp calculated')
+                print('STARTING OUTPUT FILE: ',largest_number)
+                dtout=readit_data['dtout']
                 if dtout>10:
                     step=int(dtout)
                 else:
                     step=int(10/dtout)
-                for i in range(0,nnit_input+1,step):
+                for i in range(largest_number,nnit_input+1,step):
+                    write=False
                     print(f'\n--------------------------------------Output File {i}----------------------------------------------')
                     readit_data=readit_collision(i,4)
-                    if i==nnit_input:
+                    if i==nnit_input or i%50==0:
                         write=True
                     icomp=compbest3(i,readit_data,icomp,write)
+                    if i+step - nnit_input > step:
+                        write=True
+                        icomp=compbest3(nnit_input,readit_data,write)
             elif option == 5:
                 pa_plot(readit_data,profile_num,nnit_input)
             print("Output data analysis completed.")
