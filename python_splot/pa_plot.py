@@ -63,7 +63,7 @@ def pa_plot(data, profile_num, outfile):
     A = ptot/rhocgs**(5/3)
 
     # reads in the profile used in the SPH relaxation
-    profilename = f'profile{profile_num}.data'
+    profilename = profile_num
 
     profilemass = []
     profileradius = []

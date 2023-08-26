@@ -68,7 +68,8 @@ def entropy_reader(mode):
     # temporary until we can figure out how num_zones is calculated in MESA
     with open("/home/kce5466/sph-to-mesa/python_splot/angular_momentum.dat") as f:
         
-        q = []
+        xq = []
+        q=[]
 
         n = 0
 
@@ -77,10 +78,12 @@ def entropy_reader(mode):
                 num_zones = line.split()
                 n += 1
             else:
-                newq = line.split()[0]
-                q.append(float(newq))
+                newxq = line.split()[0]
+                xq.append(float(newxq))
+                q.append(1-float(newxq))
 
     totalmass = 0
+    xq_mass_fraction = []
     q_mass_fraction = []
 
     # the total mass should be the final line's mass
@@ -97,8 +100,9 @@ def entropy_reader(mode):
         massoutside = totalmass - massenclosed
         massfraction = massoutside / totalmass
         # print(massfraction)
-        q_mass_fraction.append(massfraction) # mesa uses this version of the mass fraction
-        # print(q_mass_fraction[index])
+        xq_mass_fraction.append(massfraction) # mesa uses this version of the mass fraction
+        q_mass_fraction.append(1-massfraction)
+        # print(xq_mass_fraction[index])
         index += 1
 
     # calculates P/rho^(5/3)
@@ -107,6 +111,7 @@ def entropy_reader(mode):
         poverrho53.append(j/i**(5/3))
 
     # Spline can only interpolate with increasing values of q
+    xq_mass_fraction.reverse()
     q_mass_fraction.reverse()
     radius.reverse()
     density.reverse()
@@ -160,7 +165,8 @@ def entropy_reader(mode):
     
     # adds the value of the first zone to a point below zero to ensure good boundary condition behavior
 
-    q_mass_fraction.append((q_mass_fraction[-1]+1)/2)
+    xq_mass_fraction.append((xq_mass_fraction[-1]+1)/2)
+    q_mass_fraction.append((q_mass_fraction[-1])/2)
     mass.append(mass[-1])
     radius.append(radius[-1])
     pressure.append(pressure[-1])
@@ -179,7 +185,8 @@ def entropy_reader(mode):
     poverrho53.append(poverrho53[-1])
 
     
-    q_mass_fraction.append(1.0)
+    xq_mass_fraction.append(1.0)
+    q_mass_fraction.append(0.0)
     mass.append(mass[-1])
     radius.append(radius[-1])
     pressure.append(pressure[-1])
@@ -197,7 +204,8 @@ def entropy_reader(mode):
     mg24list.append(mg24list[-1])
     poverrho53.append(poverrho53[-1])
     
-    q_mass_fraction.append(1.01)
+    xq_mass_fraction.append(1.01)
+    q_mass_fraction.append(-0.01)
     mass.append(mass[-1])
     radius.append(radius[-1])
     pressure.append(pressure[-1])
@@ -215,7 +223,8 @@ def entropy_reader(mode):
     mg24list.append(mg24list[-1])
     poverrho53.append(poverrho53[-1])
 
-    q_mass_fraction.append(1.02)
+    xq_mass_fraction.append(1.02)
+    q_mass_fraction.append(-0.02)
     mass.append(mass[-1])
     radius.append(radius[-1])
     pressure.append(pressure[-1])
@@ -235,26 +244,27 @@ def entropy_reader(mode):
 
     # creates an equation for the data of mass fraction vs density,
     # mass fraction vs specific thermal energy, and mass fraction and angular momentum
-    rho = CubicSpline(q_mass_fraction, density)
-    e = CubicSpline(q_mass_fraction, specThermEnergy)
-    p = CubicSpline(q_mass_fraction, pressure)
-    prho53 = CubicSpline(q_mass_fraction, poverrho53)
-    jrot = CubicSpline(q_mass_fraction, jrotlist)
-    temp = CubicSpline(q_mass_fraction, templist)
-    r = CubicSpline(q_mass_fraction,radius)
+    rho = CubicSpline(xq_mass_fraction, density)
+    e = CubicSpline(xq_mass_fraction, specThermEnergy)
+    p = CubicSpline(xq_mass_fraction, pressure)
+    prho53 = CubicSpline(xq_mass_fraction, poverrho53)
+    jrot = CubicSpline(xq_mass_fraction, jrotlist)
+    temp = CubicSpline(xq_mass_fraction, templist)
+    r = CubicSpline(xq_mass_fraction,radius)
 
     # uses linear interpolation for composition
-    h1 = np.interp(x=q,xp=q_mass_fraction, fp=h1list)
-    he3 = np.interp(x=q,xp=q_mass_fraction, fp=he3list)
-    he4 = np.interp(x=q,xp=q_mass_fraction, fp=he4list)
-    c12 = np.interp(x=q,xp=q_mass_fraction, fp=c12list)
-    n14 = np.interp(x=q,xp=q_mass_fraction, fp=n14list)
-    o16 = np.interp(x=q,xp=q_mass_fraction, fp=o16list)
-    ne20 = np.interp(x=q,xp=q_mass_fraction, fp=ne20list)
-    mg24 = np.interp(x=q,xp=q_mass_fraction, fp=mg24list)
-    rcomp = np.interp(x=q,xp=q_mass_fraction, fp=radius)
+    h1 = np.interp(x=xq,xp=xq_mass_fraction, fp=h1list)
+    he3 = np.interp(x=xq,xp=xq_mass_fraction, fp=he3list)
+    he4 = np.interp(x=xq,xp=xq_mass_fraction, fp=he4list)
+    c12 = np.interp(x=xq,xp=xq_mass_fraction, fp=c12list)
+    n14 = np.interp(x=xq,xp=xq_mass_fraction, fp=n14list)
+    o16 = np.interp(x=xq,xp=xq_mass_fraction, fp=o16list)
+    ne20 = np.interp(x=xq,xp=xq_mass_fraction, fp=ne20list)
+    mg24 = np.interp(x=xq,xp=xq_mass_fraction, fp=mg24list)
+    rcomp = np.interp(x=xq,xp=xq_mass_fraction, fp=radius)
 
     # now that spline is made, we need to write to the file
+    xq_mass_fraction.reverse()
     q_mass_fraction.reverse()
     radius.reverse()
     density.reverse()
@@ -274,21 +284,40 @@ def entropy_reader(mode):
 
 
     # creates the best fit equations to be graphed later
-    densityfit = rho(q)
-    rfit = r(q)
-    specThermEnergyfit = e(q)
-    poverrho53fit = prho53(q)
-    pressurefit = p(q)
-    jrotfit = jrot(q)
-    tempfit = temp(q)
-    #h1fit = h1(q)
-    #he3fit = he3(q)
-    #he4fit = he4(q)
-    #c12fit = c12(q)
-    #n14fit = n14(q)
-    #o16fit = o16(q)
-    #ne20fit = ne20(q)
-    #mg24fit = mg24(q)
+    densityfit = rho(xq)
+    rfit = r(xq)
+    specThermEnergyfit = e(xq)
+    poverrho53fit = prho53(xq)
+    pressurefit = p(xq)
+    jrotfit = jrot(xq)
+    tempfit = temp(xq)
+    #h1fit = h1(xq)
+    #he3fit = he3(xq)
+    #he4fit = he4(xq)
+    #c12fit = c12(xq)
+    #n14fit = n14(xq)
+    #o16fit = o16(xq)
+    #ne20fit = ne20(xq)
+    #mg24fit = mg24(xq)
+
+    interp_data = {
+        'xq':xq,
+        'q':q,
+        'r':rfit,
+        'rho':densityfit,
+        'P':pressurefit,
+        'A':poverrho53fit,
+        'T':tempfit,
+        'jrot':jrotfit,
+        'H1':h1,
+        'He3':he3,
+        'He4':he4,
+        'C12':c12,
+        'N14':n14,
+        'O16':o16,
+        'Ne20':ne20,
+        'Mg24':mg24
+    }
     
     mycompositionfile = open("composition.dat", "w")
 
@@ -315,8 +344,8 @@ def entropy_reader(mode):
 #    positivemg24 = [max(0, mg24[k]) for k in q]
 #    positivemg24 = [min(1, positivemg24[k]) for k in range(len(q))]
         
-    for k in range(len(q)):
-        mycompositionfile.write(f"{q[k]}     {h1[k]}     {he3[k]}     {he4[k]}     {c12[k]}     {n14[k]}     {o16[k]}     {ne20[k]}     {mg24[k]}\n")
+    for k in range(len(xq)):
+        mycompositionfile.write(f"{xq[k]}     {h1[k]}     {he3[k]}     {he4[k]}     {c12[k]}     {n14[k]}     {o16[k]}     {ne20[k]}     {mg24[k]}\n")
         
 
     # this writes the entropy.dat file to be used in mesa
@@ -329,7 +358,7 @@ def entropy_reader(mode):
     if mode == 'DT':
 
         # this format is for a density, temperature pair
-        for j in q:
+        for j in xq:
             myentropyfile.write(f"{j}     {abs(rho(j))}     {abs(temp(j))}\n")
 
         myentropyfile.close()
@@ -337,7 +366,7 @@ def entropy_reader(mode):
     elif mode == 'PT':
 
         # print('length of q =', len(q))
-        for j in q:
+        for j in xq:
             myentropyfile.write(f"{j}     {abs(p(j))}     {abs(temp(j))}\n")
         
         myentropyfile.close
@@ -346,14 +375,14 @@ def entropy_reader(mode):
 
         # this format is for a density, specific thermal energy pair
         # writes mass fraction, density, and specific thermal energy on one line per shell
-        for j in q:
+        for j in xq:
             myentropyfile.write(f"{j}     {abs(rho(j))}     {abs(e(j))}\n")
 
         myentropyfile.close
 
     elif mode == 'DP':
 
-        for j in q:
+        for j in xq:
             myentropyfile.write(f"{j}     {abs(rho(j))}     {abs(p(j))}\n")
         
         myentropyfile.close()
@@ -366,7 +395,7 @@ def entropy_reader(mode):
     myjrotfile.write(f"{num_zones[0]}\n")
 
     # writes mass fraction, density, and specific thermal energy on one line per shell
-    for j in q:
+    for j in xq:
         myjrotfile.write(f"{j}     {jrot(j)}\n")
 
     myjrotfile.close()
@@ -375,8 +404,8 @@ def entropy_reader(mode):
 
     weightedX=0
     weightedY=0
-    for i in range(len(q)-1):
-        xq_frac=q[i+1]-q[i]
+    for i in range(len(xq)-1):
+        xq_frac=xq[i+1]-xq[i]
         weightedX+=h1[i]*xq_frac
         weightedY+=he4[i]*xq_frac
 
@@ -388,42 +417,78 @@ def entropy_reader(mode):
         f.write(f'Y:                                {weightedY}\n')
         f.write(f'Z:                                {Z}\n')
     
-    # subplots the data for visual representation as a function of q
+    # subplots the data for visual representation as a function of xq
 
     f,ax = plt.subplots(3,2,sharex=True,figsize=(8,8))
 
     f.subplots_adjust(hspace=0,wspace=0.5)
     
-    ax[0,0].plot(q,specThermEnergyfit,color='black')
+    ax[0,0].plot(xq,specThermEnergyfit,color='black')
     ax[0,0].set_ylabel(r'$u$')
     #ax[0,0].invert_xaxis()
 
-    ax[1,0].plot(q,densityfit,color='black')
+    ax[1,0].plot(xq,densityfit,color='black')
     ax[1,0].set_ylabel(r'$\rho$')
     ax[1,0].set_yscale('log')
     #ax[1,0].invert_xaxis()
 
-    ax[2,0].plot(q,tempfit,color='black')
+    ax[2,0].plot(xq,tempfit,color='black')
     ax[2,0].set_ylabel(r'$T$')
     ax[2,0].set_xlabel(r'$xq$')
     ax[2,0].set_xlim(1.1,-0.1)
 
-    ax[0,1].plot(q,poverrho53fit,color='black')
+    ax[0,1].plot(xq,poverrho53fit,color='black')
     #ax[0,1].scatter(q_mass_fraction,poverrho53,marker='x',color='black')
     ax[0,1].set_ylabel(r'${P/{\rho}^(5/3)}$')
     ax[0,1].set_yscale('log')
     #ax[0,1].invert_xaxis()
     
-    ax[1,1].plot(q,pressurefit,color='black')
+    ax[1,1].plot(xq,pressurefit,color='black')
     ax[1,1].set_ylabel(r'$P$')
     ax[1,1].set_yscale('log')
     #ax[1,1].invert_xaxis()
 
-    ax[2,1].plot(q,jrotfit,color='black')
+    ax[2,1].plot(xq,jrotfit,color='black')
     ax[2,1].set_ylabel(r'$j$')
     ax[2,1].set_xlabel(r'$xq$')
     ax[2,1].set_yscale('log')
     ax[2,1].set_xlim(1.1,-0.1)
+
+    plt.show()
+
+    # plots as a function or radius
+    f,ax = plt.subplots(3,2,sharex=True,figsize=(8,8))
+
+    f.subplots_adjust(hspace=0,wspace=0.5)
+    
+    ax[0,0].plot(rfit,specThermEnergyfit,color='black')
+    ax[0,0].set_ylabel(r'$u$')
+    #ax[0,0].invert_xaxis()
+
+    ax[1,0].plot(rfit,densityfit,color='black')
+    ax[1,0].set_ylabel(r'$\rho$')
+    ax[1,0].set_yscale('log')
+    #ax[1,0].invert_xaxis()
+
+    ax[2,0].plot(rfit,tempfit,color='black')
+    ax[2,0].set_ylabel(r'$T$')
+    ax[2,0].set_xlabel(r'R [R$_{\odot}$]')
+
+    ax[0,1].plot(rfit,poverrho53fit,color='black')
+    #ax[0,1].scatter(q_mass_fraction,poverrho53,marker='x',color='black')
+    ax[0,1].set_ylabel(r'${P/{\rho}^(5/3)}$')
+    ax[0,1].set_yscale('log')
+    #ax[0,1].invert_xaxis()
+    
+    ax[1,1].plot(rfit,pressurefit,color='black')
+    ax[1,1].set_ylabel(r'$P$')
+    ax[1,1].set_yscale('log')
+    #ax[1,1].invert_xaxis()
+
+    ax[2,1].plot(rfit,jrotfit,color='black')
+    ax[2,1].set_ylabel(r'$j$')
+    ax[2,1].set_xlabel(r'R [R$_{\odot}$]')
+    ax[2,1].set_yscale('log')
 
     plt.show()
 
@@ -432,8 +497,8 @@ def entropy_reader(mode):
     f,ax=plt.subplots()
 
     #ax.plot(q,h1fit,color='mediumpurple',label='H1 fraction')
-    ax.plot(q,h1,color='mediumpurple',label='H1 fraction',linewidth=0.75)
-    ax.plot(q,he4,color='blue',label='He4 fraction',linewidth=0.75)
+    ax.plot(xq,h1,color='mediumpurple',label='H1 fraction',linewidth=0.75)
+    ax.plot(xq,he4,color='blue',label='He4 fraction',linewidth=0.75)
     #ax.plot(q,he4fit,color='blue',label='He4 fraction')
     #ax.plot(q_mass_fraction,h1list,color='black',marker='x')
     #ax.plot(q_mass_fraction,he4list,color='black',marker='x')
@@ -446,9 +511,17 @@ def entropy_reader(mode):
         
     plt.show()
 
-    f,ax=plt.subplots()
 
-    ax.plot(q_mass_fraction,h1list)
-    ax.plot(q_mass_fraction,he4list)
+    # graphs H1 and He4 vs radius
+
+    f,ax=plt.subplots()
+    
+    ax.plot(rcomp,h1,color='mediumpurple',label='H1',linewidth=0.75)
+    ax.plot(rcomp,he4,color='blue',label='He4',linewidth=0.75)
+    ax.set_title('Star Composition')
+    ax.set_xlabel(r'R [R$_{\odot}$]')
+    ax.set_ylabel('Fraction')
 
     plt.show()
+
+    return interp_data

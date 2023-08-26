@@ -16,7 +16,7 @@ Department of Physics
 """
 
 # data is read in using readit.py and passed through splot.py
-def bestfit(data, comp_data, neos):
+def bestfit(data, comp_data, neos,sph_input):
 
     # from readit import readit
     from get_temperature import get_temperature
@@ -130,7 +130,8 @@ def bestfit(data, comp_data, neos):
                 print("ERROR CALCULATING TEMPERATURE OR PRESSURE")
 
     elif neos == 2:
-        eos_data = read_eos()
+        eosfile=sph_input['eosfile']
+        eos_data = read_eos(eosfile)
         # print(eos_data)
         for i in range(ntot):
             try:
@@ -320,11 +321,11 @@ def bestfit(data, comp_data, neos):
 
     #print(f'H1 average: {h1avg}')
         
-    # calculates how much of the mass is in the middle 50% of the radius
+    # calculates quantities of values in certain regions of the star
 
-    print(r_array)
-    print(am)
-    print(radius)
+    #print(r_array)
+    #print(am)
+    #print(radius)
     enclosed_mass = []
     outer_mass = []
     half_r=radius/2
@@ -347,14 +348,14 @@ def bestfit(data, comp_data, neos):
     ascending_r = np.sort(r_array)
 
     half_mass=np.sum(am)/2
-    print(half_mass)
+    #print(f'mass * 1/2 = {half_mass}')
     half_mass_array = np.array([])
     for x,y in zip(ascending_r,r_orig_array):
         if np.sum(half_mass_array) < half_mass:
             half_mass_array = np.append(half_mass_array,am[y])
 
     print('half mass = ', np.sum(half_mass_array))
-    print('num particles = ', half_mass_array.shape[0])
+    print('num particles in inner half mass ', half_mass_array.shape[0])
     
     GAM = 5/3
     print(f"GAMMA = {GAM}")

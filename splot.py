@@ -34,6 +34,8 @@ from bound_particles import bound_particle_data
 from component_best3 import compbest3
 from pa_plot import pa_plot
 from energy_graph import v
+from input_reader import sph_input_reader
+from header_output import header_output
 
 def main():
     ### Similar to pplot.f
@@ -43,10 +45,10 @@ def main():
     Determine components [4] \n    pa plot [5] \n    v plot [6] \n: "))
     if option == 1 or option == 3:
         mode = input("Which type of input file would you like to feed to MESA?\n    DT\n    PT\n    DE\n    DP\n: ")
-        neos = int(input("Which type of eos is your simulation using?\n    Analytic (default SPH) [1]\n    MESA [2]\n: "))
+#        neos = int(input("Which type of eos is your simulation using?\n    Analytic (default SPH) [1]\n    MESA [2]\n: "))
         comp_data = compsph_readit()
-    if option == 2 or option ==5:
-        profile_num=int(input('What profile is used in the SPH relaxation (just number)? '))
+#    if option == 2 or option ==5:
+#        profile_num=int(input('What profile is used in the SPH relaxation (just number)? '))
     if option==3:
         component_val=int(input("Which star are you analyzing? "))
     if option == 6:
@@ -56,14 +58,23 @@ def main():
     nnit_input_end = int(input("Ending out file (int, must be >= the start value): "))
     frequency = int(input("Step size between files: "))
     nnit_input = nnit_input_start
+    print('------------------- sph.input ------------------')
+    sph_input=sph_input_reader()
+    print('\n\n')
+    try:
+        neos=sph_input['neos']
+    except:
+        neos=1
     while nnit_input <= nnit_input_end:
         if nnit_input_end >= nnit_input_start:
             print(f"--------------------------Output file {nnit_input}--------------------------")
             readit_data = readit_collision(nnit_input, 4) # iform is always 4 (usually inputted from a separate routine, but I have it set to 4)
             if option == 1:
-                bestfit(readit_data, comp_data, neos)
-                entropy_reader(mode)
+                bestfit(readit_data, comp_data, neos,sph_input)
+                interp_data=entropy_reader(mode)
+                # writes all the stored data to a file called sphToMesa.out which can be used with Jacky Tran's Hypermongo tool for further analysis
             elif option == 2:
+                profile_num=sph_input['profilefile']
                 q, elements = composition_reader(profile_num)
                 splines = comp_spline(q, elements)
                 composition_fit(readit_data, splines)
@@ -73,8 +84,10 @@ def main():
                 # finds the bound particle and composition data to be passed to bestfit_total.py
                 bound_data, bound_composition_data = bound_particle_data(readit_data, component_data, comp_data,component_val)
                 # creates composition.dat, entropy.dat, and angular_momentum.dat
-                bestfit(bound_data, bound_composition_data, neos)
-                entropy_reader(mode)
+                bestfit(bound_data, bound_composition_data, neos,sph_input)
+                interp_data=entropy_reader(mode)
+                # writes all the stored data to a file called sphToMesa.out which can be used with Jacky Tran's Hypermongo plot for further analysis
+                header_output(interp_data)
             elif option == 4:
                 try:
                     file_list=glob.glob('comp****.sph')
@@ -88,7 +101,7 @@ def main():
                         if file_number >= largest_number and file_number < nnit_input:
                             largest_number=int(np.ceil((file_number+0.1)/10)*10)
                             largest_file=file
-                        elif file_number >= laragest_number and file_number == nnit_input:
+                        elif file_number >= largest_number and file_number == nnit_input:
                             largest_number=file_number
                             largest_file=file
                     #print(largest_file)
@@ -125,16 +138,27 @@ def main():
                 else:
                     step=int(10/dtout)
                 for i in range(largest_number,nnit_input+1,step):
+                    icomp_old=icomp
+                    nfail=0
                     write=False
                     print(f'\n--------------------------------------Output File {i}----------------------------------------------')
                     readit_data=readit_collision(i,4)
                     if i==nnit_input or i%50==0:
                         write=True
-                    icomp=compbest3(i,readit_data,icomp,write)
-                    if i+step - nnit_input > step:
+                    icomp,convergence=compbest3(i,readit_data,icomp_old,write)
+                    if not convergence:
+                        icomp=icomp_old
+                        n+=1
+                        if n>= 5:
+                            print('CANNOT CONVERGE\nEXITING CODE')
+                            raise SystemExit
+                    if 0 < i+step - nnit_input < step:
+                        icomp_old=icomp
                         write=True
-                        icomp=compbest3(nnit_input,readit_data,write)
+                        print(f'\n--------------------------------------Output File {nnit_input}----------------------------------------------')
+                        icomp=compbest3(nnit_input,readit_data,icomp_old,write)
             elif option == 5:
+                profile_num=sph_input['profilefile']
                 pa_plot(readit_data,profile_num,nnit_input)
             print("Output data analysis completed.")
             nnit_input += frequency

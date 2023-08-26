@@ -223,10 +223,10 @@ def readit_collision(nnit, iform):
             n2 = np.fromfile(f, dtype=np.int32, count=1, sep="")
             n2=int(n2)
             
-        print(n1, n2)
+        print(f'n1 = {n1}     n2 = {n2}')
             
         if ntot!=n1+n2:
-            print('discrepancy')
+            print('discrepancy between ntot and n1+n2')
 
     except:
         pass

@@ -17,7 +17,7 @@ def composition_reader(profile_num):
 
     # profile15 is the default value
     # change if you are using a different profile
-    with open(f"profile{profile_num}.data", "r") as f:
+    with open(f"profile_num", "r") as f:
         # mass fraction
         q = []
 

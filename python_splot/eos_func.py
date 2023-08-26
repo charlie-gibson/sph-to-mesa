@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def read_eos():
-    eosfile = "sph.eos_X0.00to0.75step0.05"
+def read_eos(eosfile):
+    # eosfile = "sph.eos_X0.00to0.75step0.05"
     print(f"about to read EOS file {eosfile}")
 
     with open(eosfile, "r") as f:

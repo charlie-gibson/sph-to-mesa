@@ -8,7 +8,7 @@ Allegheny College
 Department of Physics
 """
 
-# data is read in usingzzzzzzzz readit.py and passed through splot.py
+# data is read in using readit.py and passed through splot.py
 def compbest3(nout,data,icomp,write=True):
     global firstt
 
@@ -182,9 +182,11 @@ def compbest3(nout,data,icomp,write=True):
         
         print(ncit,nchng,am1,am2,am3)
 
+        convergence=True
         if ncit >= NCITMAX:
            print('COMPBEST3: NO CONVERGENCE ???')
-           raise SystemExit
+           convergence=False
+           #raise SystemExit
 
     if nout <= 9999:
         fname = f'comp{nout:04d}.sph'
@@ -200,4 +202,4 @@ def compbest3(nout,data,icomp,write=True):
 
     print("Leaving COMPBEST3")
 
-    return icomp
+    return icomp,convergence
