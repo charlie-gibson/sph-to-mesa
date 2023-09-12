@@ -21,8 +21,9 @@ import re
 import numpy as np
 user = str(getpass.getuser()) # gets the username of the user (example: vanderzyden01) to use in line 4 (for the splot folder location)
 sys.path.insert(0, f'/home/{user}/sph-to-mesa/python_splot/') # this location may change for the future, if so this line must be edited accordingly
+path=sys.path.insert(0, f'/home/{user}/sph-to-mesa/python_splot/')
 # these files must all be imported after the above two lines
-from bestfit_smoothed2 import bestfit
+from bestfit import bestfit
 from readit_collision import readit_collision
 from compsph_readit import compsph_readit
 from composition_jpt_entropy_reader import entropy_reader
@@ -35,16 +36,18 @@ from component_best3 import compbest3
 from pa_plot import pa_plot
 from energy_graph import v
 from input_reader import sph_input_reader
-from header_output import header_output
+from neighbors import neighbors
 
 def main():
     ### Similar to pplot.f
     # print to the user to ask for the option number for bestfit, composition, etc.
+    #option=7
     option = int(input("Which option would you like to do?\n    Generate MESA files - no collision [1] \n\
     Generate composition.sph [2] \n    Generate MESA files - collision [3] \n\
     Determine components [4] \n    pa plot [5] \n    v plot [6] \n: "))
     if option == 1 or option == 3:
         mode = input("Which type of input file would you like to feed to MESA?\n    DT\n    PT\n    DE\n    DP\n: ")
+        #mode = 'DT'
 #        neos = int(input("Which type of eos is your simulation using?\n    Analytic (default SPH) [1]\n    MESA [2]\n: "))
         comp_data = compsph_readit()
 #    if option == 2 or option ==5:
@@ -70,9 +73,8 @@ def main():
             print(f"--------------------------Output file {nnit_input}--------------------------")
             readit_data = readit_collision(nnit_input, 4) # iform is always 4 (usually inputted from a separate routine, but I have it set to 4)
             if option == 1:
-                bestfit(readit_data, comp_data, neos,sph_input)
-                interp_data=entropy_reader(mode)
-                # writes all the stored data to a file called sphToMesa.out which can be used with Jacky Tran's Hypermongo tool for further analysis
+                bestfit(readit_data, comp_data, neos, sph_input)
+                entropy_reader(mode,path)
             elif option == 2:
                 profile_num=sph_input['profilefile']
                 q, elements = composition_reader(profile_num)
@@ -82,12 +84,13 @@ def main():
                 # Option 2 still needs to be run with the original relaxation to create composition.sph
                 component_data = component_reader(nnit_input) # makes a list of the values of the component for each particle
                 # finds the bound particle and composition data to be passed to bestfit_total.py
-                bound_data, bound_composition_data = bound_particle_data(readit_data, component_data, comp_data,component_val)
+                composition_data = neighbors(readit_data,comp_data)
+                print('FINDING BOUND PARTICLES')
+                bound_data, bound_composition_data = bound_particle_data(readit_data, component_data, composition_data,component_val)
                 # creates composition.dat, entropy.dat, and angular_momentum.dat
-                bestfit(bound_data, bound_composition_data, neos,sph_input)
-                interp_data=entropy_reader(mode)
-                # writes all the stored data to a file called sphToMesa.out which can be used with Jacky Tran's Hypermongo plot for further analysis
-                header_output(interp_data)
+                print('ENTERING BESTFTI')
+                bestfit(bound_data, bound_composition_data, neos, sph_input)
+                entropy_reader(mode,path)
             elif option == 4:
                 try:
                     file_list=glob.glob('comp****.sph')

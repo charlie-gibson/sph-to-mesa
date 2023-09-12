@@ -16,7 +16,7 @@ Department of Physics
 """
 
 # data is read in using readit.py and passed through splot.py
-def bestfit(data, comp_data, neos):
+def bestfit(data, comp_data, neos,sph_input):
 
     # from readit import readit
     from get_temperature import get_temperature
@@ -130,7 +130,8 @@ def bestfit(data, comp_data, neos):
                 print("ERROR CALCULATING TEMPERATURE OR PRESSURE")
 
     elif neos == 2:
-        eos_data = read_eos()
+        eosfile=sph_input['eosfile']
+        eos_data = read_eos(eosfile)
         # print(eos_data)
         for i in range(ntot):
             try:
@@ -388,6 +389,14 @@ def bestfit(data, comp_data, neos):
                                                        tmax,
                                                        h1max, he3max, he4max, c12max, n14max, o16max, ne20max, mg24max
                                                        ))
+
+        f.close()
+
+    with open('sph_star.dat','w') as f:
+        f.write(f'Mass:                             {np.sum(am)}\n')
+        f.write(f'Radius:                           {radius}\n')
+        f.write(f'Particles:                        {ntot}\n')
+        f.write(f'Particles for inner 50% of mass:  {half_mass_array.shape[0]}\n')
 
         f.close()
 

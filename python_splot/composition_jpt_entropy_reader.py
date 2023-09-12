@@ -14,7 +14,7 @@ Allegheny College
 Department of Physics
 """
 
-def entropy_reader(mode):
+def entropy_reader(mode,path):
 
     import numpy as np
     from scipy.interpolate import CubicSpline
@@ -66,7 +66,7 @@ def entropy_reader(mode):
                 pass
 
     # temporary until we can figure out how num_zones is calculated in MESA
-    with open("/home/kce5466/sph-to-mesa/python_splot/angular_momentum.dat") as f:
+    with open(f"{path}/angular_momentum.dat") as f:
         
         xq = []
         q=[]
@@ -402,20 +402,43 @@ def entropy_reader(mode):
 
     # calculates the total X, Y, and Z
 
-    weightedX=0
-    weightedY=0
+    weightedH1=0
+    weightedHe3=0
+    weightedHe4=0
+    weightedC12=0
+    weightedN14=0
+    weightedO16=0
+    weightedNe20=0
+    weightedMg24=0
+
     for i in range(len(xq)-1):
         xq_frac=xq[i+1]-xq[i]
-        weightedX+=h1[i]*xq_frac
-        weightedY+=he4[i]*xq_frac
+        weightedH1+=h1[i]*xq_frac
+        weightedHe3+=he3[i]*xq_frac
+        weightedHe4+=he4[i]*xq_frac
+        weightedC12+=c12[i]*xq_frac
+        weightedN14+=n14[i]*xq_frac
+        weightedO16+=o16[i]*xq_frac
+        weightedNe20+=ne20[i]*xq_frac
+        weightedMg24+=mg24[i]*xq_frac
 
-    Z=1-weightedX-weightedY
-    print(f'X: {weightedX}\nY: {weightedY}\nZ: {Z}')
+    Z=1-weightedH1-weightedHe4
+    print(f'X: {weightedH1}\nY: {weightedHe4}\nZ: {Z}\n')
+    print(f'H1: {weightedH1}\nHe3: {weightedHe3}\nHe4: {weightedHe4}\nC12: {weightedC12}\nN14: {weightedN14} \nO16: {weightedO16}\nNe20: {weightedNe20}\nMg24: {weightedMg24}')
 
     with open('sph_star.dat','a') as f:
-        f.write(f'X:                                {weightedX}\n')
-        f.write(f'Y:                                {weightedY}\n')
+        f.write(f'X:                                {weightedH1}\n')
+        f.write(f'Y:                                {weightedHe4}\n')
         f.write(f'Z:                                {Z}\n')
+        f.write(f'H1:                               {weightedH1}\n')
+        f.write(f'He3:                              {weightedHe3}\n')
+        f.write(f'He4:                              {weightedHe4}\n')
+        f.write(f'C12:                              {weightedC12}\n')
+        f.write(f'N14:                              {weightedN14}\n')
+        f.write(f'O16:                              {weightedO16}\n')
+        f.write(f'Ne20:                             {weightedNe20}\n')
+        f.write(f'Mg24:                             {weightedMg24}\n')
+        f.write(f'[N/C]:                            {weightedN14/weightedC12}')
     
     # subplots the data for visual representation as a function of xq
 
