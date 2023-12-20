@@ -16,13 +16,13 @@ Department of Physics
 """
 
 # data is read in using readit.py and passed through splot.py
-def bestfit(data, comp_data, neos,sph_input):
+def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
 
     # from readit import readit
-    from get_temperature import get_temperature
+    #from get_temperature import get_temperature
     import numpy as np
-    from eos_func import read_eos
-    from eos_func import useeostable
+    #from eos_func import read_eos
+    #from eos_func import useeostable
 
     # uses the lists in data (a dictionary) to determine the variables for calculations
     ntot = int(data['ntot']) # number of particles
@@ -43,6 +43,13 @@ def bestfit(data, comp_data, neos,sph_input):
     grpot = data['grpot'] # gravitational potential
     meanmolecular = data['meanmolecular'] # mean molecular weight
     cc = data['cc']
+    try:
+        n1=data['n1']
+        n2=data['n2']
+        cc1val = data['cc1val']
+        cc2val = data['cc2val']
+    except:
+        pass
     divv = data['divv']
     # aa = data['aa']
     # bb = data['bb']
@@ -88,17 +95,17 @@ def bestfit(data, comp_data, neos,sph_input):
     arad = 4.0*sigma/crad #cgs
     qconst = 1.5*boltz/arad #cgs
 
-    temp = np.zeros(ntot)
-    pgas = np.zeros(ntot)
-    prad = np.zeros(ntot)
-    ptot = np.zeros(ntot)
+    #temp = np.zeros(ntot)
+    #pgas = np.zeros(ntot)
+    #prad = np.zeros(ntot)
+    #ptot = np.zeros(ntot)
     # number is ntot - 1 to account for one particle being a black hole
     # I would like to find a way to make this line more general to avoid having to edit
     # the code for each new run
-    rhocgs = np.zeros(ntot)
-    ucgs = np.zeros(ntot)
-    qval = np.zeros(ntot)
-    rval = np.zeros(ntot)
+    #rhocgs = np.zeros(ntot)
+    #ucgs = np.zeros(ntot)
+    #qval = np.zeros(ntot)
+    #rval = np.zeros(ntot)
 
     # rhocgs = rho * munit/runit**3
     # ucgs = u * gravconst * munit/runit
@@ -109,43 +116,43 @@ def bestfit(data, comp_data, neos,sph_input):
     # print(qval)
     # print(rval)
 
-    if neos == 1:
-        rhocgs = rho*munit/runit**3
+    #if neos == 1:
+    #    rhocgs = rho*munit/runit**3
         # print(rhocgs)
-        for i in range(ntot):
-            ucgs[i] = u[i]*gravconst*munit/runit
+    #    for i in range(ntot):
+    #        ucgs[i] = u[i]*gravconst*munit/runit
         # print(ucgs)
-        qval = qconst*rhocgs/meanmolecular
+    #    qval = qconst*rhocgs/meanmolecular
         # print(qval)
-        rval = -ucgs*rhocgs/arad
+    #    rval = -ucgs*rhocgs/arad
         # print(rval)
 
-        for n in range(ntot):
-            try:
-                temp[n] = get_temperature(qval[n], rval[n])
-                pgas[n] = rhocgs[n] * boltz * temp[n] / (meanmolecular[n])
-                # prad[n] = arad * temp[n]**4/3
-                ptot[n] = pgas[n] # + prad[n]
-            except:
-                print("ERROR CALCULATING TEMPERATURE OR PRESSURE")
+    #    for n in range(ntot):
+    #        try:
+    #            temp[n] = get_temperature(qval[n], rval[n])
+    #            pgas[n] = rhocgs[n] * boltz * temp[n] / (meanmolecular[n])
+    #            # prad[n] = arad * temp[n]**4/3
+    #            ptot[n] = pgas[n] # + prad[n]
+    #        except:
+    #            print("ERROR CALCULATING TEMPERATURE OR PRESSURE")
 
-    elif neos == 2:
-        eosfile=sph_input['eosfile']
-        eos_data = read_eos(eosfile)
+    #elif neos == 2:
+    #    eosfile=sph_input['eosfile']
+    #    eos_data = read_eos(eosfile)
         # print(eos_data)
-        for i in range(ntot):
-            try:
-                rhocgs[i] = rho[i]*munit/runit**3
-                ucgs[i] = u[i]*gravconst*munit/runit
+    #    for i in range(ntot):
+    #        try:
+    #            rhocgs[i] = rho[i]*munit/runit**3
+    #            ucgs[i] = u[i]*gravconst*munit/runit
                 # qval[i] = qconst*rhocgs[i]/meanmolecular[i]
                 # rval[i] = -ucgs[i]*rhocgs[i]/arad
 
-                temp[i] = useeostable(eos_data=eos_data, ucgs=ucgs[i], rhocgs=rhocgs[i], xxx=h1[i], which=0)
-                ptot[i] = useeostable(eos_data=eos_data, ucgs=ucgs[i], rhocgs=rhocgs[i], xxx=h1[i], which=2)
-                pgas[i] = ptot[i] - arad * temp[i]**4/3
-            except:
-                print("problem using eostable", i, rho[i]*munit/runit**3, u[i]*gravconst*munit/runit, useeostable(eos_data=eos_data, ucgs=ucgs[i], rhocgs=rhocgs[i], xxx=h1[i], which=0))
-                raise SystemExit
+    #            temp[i] = useeostable(eos_data=eos_data, ucgs=ucgs[i], rhocgs=rhocgs[i], xxx=h1[i], which=0)
+    #            ptot[i] = useeostable(eos_data=eos_data, ucgs=ucgs[i], rhocgs=rhocgs[i], xxx=h1[i], which=2)
+    #            pgas[i] = ptot[i] - arad * temp[i]**4/3
+    #        except:
+    #            print("problem using eostable", i, rho[i]*munit/runit**3, u[i]*gravconst*munit/runit, useeostable(eos_data=eos_data, ucgs=ucgs[i], rhocgs=rhocgs[i], xxx=h1[i], which=0))
+    #            raise SystemExit
     
     # for i in temp:
     #     print(i)
@@ -193,8 +200,12 @@ def bestfit(data, comp_data, neos,sph_input):
     # adds the particle mass to all the bins before the corresponding bin to account for mass enclosed
     # in isodense surfaces
     for i in range(nbins):
-        for k in range(0, i):
-            amrho[k] += amrho[i]*2
+        amrho[:i]+=amrho[i]*2
+#    for i in range(nbins):
+#        for k in range(0, i):
+#            amrho[k] += amrho[i]*2
+
+
 
     print("PARTICLES BINNED")
 
@@ -209,7 +220,7 @@ def bestfit(data, comp_data, neos,sph_input):
     uiavg = np.zeros(nbinsbf)
     rhoavg = np.zeros(nbinsbf)
     ravg = np.zeros(nbinsbf)
-    jrotavg = np.zeros((nbinsbf, 3))
+    jrotavg = np.zeros(nbinsbf)
     radius = 0
     tavg = np.zeros(nbinsbf)
     pavg = np.zeros(nbinsbf)
@@ -250,7 +261,7 @@ def bestfit(data, comp_data, neos,sph_input):
         r_array[i] += r
         v = np.linalg.norm(vvec) # this is the speed of the v vector relative to the center of mass
         ravg[index] += r * am[i] # this gives the distance times the mass of the particle
-        jrotavg[index] += am[i] * np.cross(rvec, vvec) # this gives the angular momentum times the mass of the particle
+        jrotavg[index] += am[i] * jrot[i]  # this gives the angular momentum times the mass of the particle
         tavg[index] += temp[i] * am[i]
         pavg[index] += pgas[i] * am[i]
 
@@ -269,7 +280,7 @@ def bestfit(data, comp_data, neos,sph_input):
             radius = r
             aimax = u[i]
             rhomin = rho[i]
-            jrotmax = am[i] * np.cross(rvec, vvec)
+            jrotmax = jrot[i]
             tmax = temp[i]
             pmax = pgas[i]
 
@@ -320,11 +331,38 @@ def bestfit(data, comp_data, neos,sph_input):
     print('half mass = ', np.sum(half_mass_array))
     print('num particles = ', half_mass_array.shape)
     
+    # determines how many particles from star 1 and star 2 are in the star
+    star1=0
+    star2=0
+    star1_m=0
+    star2_m=0
+
+    try:
+        for i,m in zip(cc,am):
+            if i==cc1val:
+                star1+=1
+                star1_m+=m
+            if i==cc2val:
+                star2+=1
+                star2_m+=m
+    except:
+        if starnum==1:
+            star1=amasstot
+        elif starnum==2:
+            star2=amasstot
+                
+    star1frac=star1_m/amasstot
+    star2frac=star2_m/amasstot
+    print(f'{star1} particles in product')
+    print(f'{star2} particles in product')
+    print(f'{star1frac*100}% of star 1\'s mass in product')
+    print(f'{star2frac*100}% of star 2\'s mass in product')
+
     GAM = 5/3
     print(f"GAMMA = {GAM}")
 
     # writes all data to bestfit.sph
-    with open("bestfit.sph", "w") as f:
+    with open(f"bestfit{starnum}.sph", "w") as f:
         anoteqfrac = 0
 
         # divides all values by the mass of the bin to convert back to the final values
@@ -333,7 +371,8 @@ def bestfit(data, comp_data, neos,sph_input):
             uiavg[index] = uiavg[index] / amavg[index]
             rhoavg[index] = rhoavg[index] / amavg[index]
             ravg[index] = ravg[index] / amavg[index]
-            jrotavg[index] = np.linalg.norm(jrotavg[index]) / amavg[index]
+            # jrotavg[index] = np.linalg.norm(jrotavg[index]) / amavg[index]
+            jrotavg[index]=jrotavg[index]/amavg[index]
             tavg[index] = tavg[index] / amavg[index]
             pavg[index] = pavg[index] / amavg[index]
 
@@ -392,12 +431,15 @@ def bestfit(data, comp_data, neos,sph_input):
 
         f.close()
 
-    with open('sph_star.dat','w') as f:
+    with open(f'sph_star{starnum}.dat','w') as f:
         f.write(f'Mass:                             {np.sum(am)}\n')
         f.write(f'Radius:                           {radius}\n')
         f.write(f'Particles:                        {ntot}\n')
         f.write(f'Particles for inner 50% of mass:  {half_mass_array.shape[0]}\n')
-
+        f.write(f'Star 1 Particles:                  {star1}\n')
+        f.write(f'Star 2 Particles:                  {star2}\n')
+        f.write(f'Star 1 Fractional Mass:            {star1_m/amasstot}\n')
+        f.write(f'Star 2 Fractional Mass:            {star2_m/amasstot}\n')
         f.close()
 
     print("Leaving BESTFIT")

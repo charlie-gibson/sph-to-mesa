@@ -216,12 +216,14 @@ def readit_collision(nnit, iform):
             f.seek(4) # skips the first 4 bytes of the file (there is some sort of junk data, idk why?)
             n1 = np.fromfile(f, dtype=np.int32, count=1, sep="")
             n1=int(n1)
+            cc1val=cc[0]
             
 
         with open('sph.start2u','rb') as f:
             f.seek(4) # skips the first 4 bytes of the file (there is some sort of junk data, idk why?)
             n2 = np.fromfile(f, dtype=np.int32, count=1, sep="")
             n2=int(n2)
+            cc2val=cc[-1]
             
         print(f'n1 = {n1}     n2 = {n2}')
             
@@ -259,7 +261,9 @@ def readit_collision(nnit, iform):
             'dtout':dtout,
             'dt':dt,
             'n1':n1,
-            'n2':n2
+            'n2':n2,
+            'cc1val':cc1val,
+            'cc2val':cc2val
         }
     except:
         data = {

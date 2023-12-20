@@ -7,7 +7,6 @@ Charles Gibson and James Lombardi
 Allegheny College
 Department of Physics
 """
-
 # data is read in using readit.py and passed through splot.py
 def compbest3(nout,data,icomp,write=True):
     global firstt
@@ -50,36 +49,6 @@ def compbest3(nout,data,icomp,write=True):
 
     #enth = u
     enth = np.zeros(ntot)
-
-#    icomp = np.empty(ntot)
-#    try:
-#        icomp[:n1] = 1
-#        icomp[n1:n1+n2] = 2
-#    except:
-#        icomp=[1]*ntot
-    #icomp=[1]*ntot
-
-    
-    #try:
-    #    print(firstt)
-    #except NameError:
-    #    print("This the first time in this routine.")
-    #    firstt = False
-    #    ccparents = [cc[0]]  # Assign the first element of cc to ccparents[0]
-    #    numparents = 1
-    #    for i in range(ntot):
-    #        j = 0
-    #        while j < numparents:
-    #            if cc[i] == ccparents[j]:
-    #                break
-    #            j += 1
-    #        if j == numparents:
-    #            numparents += 1
-    #            ccparents.append(cc[i])
-    #        icomp[i] = j
-    #else:
-    #    print("This isn't the first time in compbest3.")
-    #print(icomp)
 
     ncomp1 = 0
     ncomp2 = 0
@@ -128,65 +97,105 @@ def compbest3(nout,data,icomp,write=True):
     print('nit nchng m1 m2 m3')
     print(0,ncomp1+ncomp2+ncomp3,am1,am2,am3)
 
+    ri=np.column_stack([x,y,z])
+    vi=np.column_stack([vx,vy,vz])
+
+    orig_icomp=icomp
+    orig_ic1=ncomp1
+    orig_ic2=ncomp2
+    orig_ic3=ncomp3
+
+    #print(ri,vi)
+
     # Iterate over component determination
     ncit = 0
     NCITMAX = 200
     nchng = 1
     swapcase = 0
+    retries=0
     while nchng != 0 and ncit < NCITMAX:
         nchng = 0
-        for i in range(ntot):
-            ri = np.array([x[i], y[i], z[i]])
-            vi = np.array([vx[i], vy[i], vz[i]])
-            # Calculate "total enthalpy" BI1 to component 1
-            if am1 > am[i]:
-                ri1 = np.linalg.norm(ri - r1)
-                v2i1 = np.linalg.norm(vi - v1) ** 2
-                bi1 = 0.5 * v2i1 + enth[i] - am1 / ri1
-            else:
-                bi1 = 1e30
-                
-            # calculate "total enthalpy" bi2 to component 2
-            if am2 > am[i]:
-                ri2 = np.linalg.norm(ri - r2)
-                v2i2 = np.linalg.norm(vi - v2) ** 2
-                bi2 = 0.5 * v2i2 + enth[i] - am2 / ri2
-            else:
-                bi2 = 1e30
-                 
-            # calculate "total enthalpy" bi3 to component 3
-            if am3 > am[i]:
-                ri3 = np.linalg.norm(ri - r3)
-                v2i3 = np.linalg.norm(vi - v3) ** 2
-                bi3 = 0.5 * v2i3 + enth[i] - am3 / ri3
-            else:
-                bi3 = 1e30
-                     
-            # assign particle to one of 3 components
-            if bi1 < 0 and (bi2 >= 0 or ri1 < ri2) and (bi3 >= 0 or ri1 < ri3):
-                ic = 1  # particle belongs to component 1
-            elif bi2 < 0 and (bi1 >= 0 or ri2 < ri1) and (bi3 >= 0 or ri2 < ri3):
-                ic = 2  # particle belongs to component 2
-            elif bi3 < 0 and (bi1 >= 0 or ri3 < ri1) and (bi2 >= 0 or ri3 < ri2):
-                ic = 3  # particle belongs to component 3
-            else:
-                ic = 4  # particle is unbound (component 4)
-                        
-            if ic != icomp[i]:
-                # particle assignment has changed
-                # adjust components
-                icomp[i] = ic
-                nchng += 1
+
+        valid_am1 = am1 > am
+        valid_am2 = am2 > am
+        valid_am3 = am3 > am
+
+        #print(valid_am1, valid_am2, valid_am3)
+
+        ri1 = np.linalg.norm(ri-r1,axis=1)
+        ri2 = np.linalg.norm(ri-r2,axis=1)
+        ri3 = np.linalg.norm(ri-r3,axis=1)
+
+        #print(f'ri1 = {ri1}')
+
+        v2i1 = np.linalg.norm(vi-v1,axis=1)**2
+        v2i2 = np.linalg.norm(vi-v2,axis=1)**2
+        v2i3 = np.linalg.norm(vi-v3,axis=1)**2
+
+        #print(0.5 * v2i1)
+        #print(am1/ri1, am2/ri2, am3/ri3)
+
+        bi1 = np.where(valid_am1, 0.5 * v2i1 + enth - am1 / ri1, 1e30)
+        bi2 = np.where(valid_am2, 0.5 * v2i2 + enth - am2 / ri2, 1e30)
+        bi3 = np.where(valid_am3, 0.5 * v2i3 + enth - am3 / ri3, 1e30)
+
+        #print(bi1,bi2,bi3)
+
+        valid_bi1 = bi1 < 0
+        valid_bi2 = bi2 < 0
+        valid_bi3 = bi3 < 0
+
+        #print(np.where(valid_bi1))
+
+        valid_condition_1 = valid_bi1 & ((bi2 >= 0) | (ri1 < ri2)) & ((bi3 >= 0) | (ri1 < ri3))
+        valid_condition_2 = valid_bi2 & ((bi1 >= 0) | (ri2 < ri1)) & ((bi3 >= 0) | (ri2 < ri3))
+        valid_condition_3 = valid_bi3 & ((bi1 >= 0) | (ri3 < ri1)) & ((bi2 >= 0) | (ri3 < ri2))
+
+#        ic = np.where(valid_condition_1, 1, np.where(valid_condition_2, 2, np.where(valid_condition_3, 3, 4)))
+
+        #print(ic)
+
+#        nchng = np.count_nonzero(ic != icomp)  # Count the number of changed assignments
+#        icomp = ic  # Update the icomp array with the new assignments
+
+        ic = np.where(valid_condition_1, 1, np.where(valid_condition_2, 2, np.where(valid_condition_3, 3, 4)))
+
+        nchng = np.count_nonzero(ic != icomp)  # Count the number of changed assignments
+        icomp = ic  # Update the icomp array with the new assignments
+        #print(nchng)
+
         am1,r1,v1,am2,r2,v2,am3,r3,v3,am4 = calccom(ntot,am,x,y,z,vx,vy,vz,icomp)
         ncit += 1
         
         print(ncit,nchng,am1,am2,am3)
 
+        # merges the two component 1 and component 2 assignments if the star doesn't converge
         convergence=True
-        if ncit >= NCITMAX:
-           print('COMPBEST3: NO CONVERGENCE ???')
-           convergence=False
+        if ncit >= NCITMAX and retries == 0:
+           #print('COMPBEST3: NO CONVERGENCE ???')
+           icomp=np.array(orig_icomp)
+           if orig_ic1>orig_ic2 and orig_ic2<3000:
+               icomp2=np.where(icomp==2)[0]
+               #print(icomp2)
+               #raise SystemExit
+               icomp[icomp2]=1
+               am1,r1,v1,am2,r2,v2,am3,r3,v3,am4 = calccom(ntot,am,x,y,z,vx,vy,vz,icomp)
+           elif orig_ic2>orig_ic1 and orig_ic1<3000:
+               icomp1=np.where(icomp==1)[0]
+               #print(icomp1)
+               icomp[icomp1]=2
+               #print(icomp[np.where(icomp==1)[0]])
+               am1,r1,v1,am2,r2,v2,am3,r3,v3,am4 = calccom(ntot,am,x,y,z,vx,vy,vz,icomp)
+           else:
+               print('TOO MANY PARTICLES TO MERGE STARS. EXITING CODE')
+               raise SystemExit
+           print('NO CONVERGENCE: MERGING STARS AND RESTARTING\n')
+           retries+=1
+           ncit=0
            #raise SystemExit
+        elif ncit>=NCITMAX:
+            print('COMPBEST3: NO CONVERGENCE')
+            convergence=False
 
     if nout <= 9999:
         fname = f'comp{nout:04d}.sph'

@@ -14,14 +14,14 @@ Allegheny College
 Department of Physics
 """
 
-def entropy_reader(mode,path):
+def entropy_reader(mode,path,starnum=1):
 
     import numpy as np
     from scipy.interpolate import CubicSpline
     import matplotlib.pyplot as plt
 
     # reads in the data from bestfit.sph
-    with open("bestfit.sph") as f:
+    with open(f"bestfit{starnum}.sph") as f:
         # headers
         # header_names = [ "mass", "radius", "pressure", "density", "specific thermal energy" "specific angular momentum"]
 
@@ -165,82 +165,82 @@ def entropy_reader(mode,path):
     
     # adds the value of the first zone to a point below zero to ensure good boundary condition behavior
 
-    xq_mass_fraction.append((xq_mass_fraction[-1]+1)/2)
-    q_mass_fraction.append((q_mass_fraction[-1])/2)
-    mass.append(mass[-1])
-    radius.append(radius[-1])
-    pressure.append(pressure[-1])
-    density.append(density[-1])
-    specThermEnergy.append(specThermEnergy[-1])
-    jrotlist.append(jrotlist[-1])
-    templist.append(templist[-1])
-    h1list.append(h1list[-1])
-    he3list.append(he3list[-1])
-    he4list.append(he4list[-1])
-    c12list.append(c12list[-1])
-    n14list.append(n14list[-1])
-    o16list.append(o16list[-1])
-    ne20list.append(ne20list[-1])
-    mg24list.append(mg24list[-1])
-    poverrho53.append(poverrho53[-1])
+#    xq_mass_fraction.append((xq_mass_fraction[-1]+1)/2)
+#    q_mass_fraction.append((q_mass_fraction[-1])/2)
+#    mass.append(mass[-1])
+#    radius.append(radius[-1])
+#    pressure.append(pressure[-1])
+#    density.append(density[-1])
+#    specThermEnergy.append(specThermEnergy[-1])
+#    jrotlist.append(jrotlist[-1])
+#    templist.append(templist[-1])
+#    h1list.append(h1list[-1])
+#    he3list.append(he3list[-1])
+#    he4list.append(he4list[-1])
+#    c12list.append(c12list[-1])
+#    n14list.append(n14list[-1])
+#    o16list.append(o16list[-1])
+#    ne20list.append(ne20list[-1])
+#    mg24list.append(mg24list[-1])
+#    poverrho53.append(poverrho53[-1])
 
     
-    xq_mass_fraction.append(1.0)
-    q_mass_fraction.append(0.0)
-    mass.append(mass[-1])
-    radius.append(radius[-1])
-    pressure.append(pressure[-1])
-    density.append(density[-1])
-    specThermEnergy.append(specThermEnergy[-1])
-    jrotlist.append(jrotlist[-1])
-    templist.append(templist[-1])
-    h1list.append(h1list[-1])
-    he3list.append(he3list[-1])
-    he4list.append(he4list[-1])
-    c12list.append(c12list[-1])
-    n14list.append(n14list[-1])
-    o16list.append(o16list[-1])
-    ne20list.append(ne20list[-1])
-    mg24list.append(mg24list[-1])
-    poverrho53.append(poverrho53[-1])
+#    xq_mass_fraction.append(1.0)
+#    q_mass_fraction.append(0.0)
+#    mass.append(mass[-1])
+#    radius.append(radius[-1])
+#    pressure.append(pressure[-1])
+#    density.append(density[-1])
+#    specThermEnergy.append(specThermEnergy[-1])
+#    jrotlist.append(jrotlist[-1])
+#    templist.append(templist[-1])
+#    h1list.append(h1list[-1])
+#    he3list.append(he3list[-1])
+#    he4list.append(he4list[-1])
+#    c12list.append(c12list[-1])
+#    n14list.append(n14list[-1])
+#    o16list.append(o16list[-1])
+#    ne20list.append(ne20list[-1])
+#    mg24list.append(mg24list[-1])
+#    poverrho53.append(poverrho53[-1])
     
-    xq_mass_fraction.append(1.01)
-    q_mass_fraction.append(-0.01)
-    mass.append(mass[-1])
-    radius.append(radius[-1])
-    pressure.append(pressure[-1])
-    density.append(density[-1])
-    specThermEnergy.append(specThermEnergy[-1])
-    jrotlist.append(jrotlist[-1])
-    templist.append(templist[-1])
-    h1list.append(h1list[-1])
-    he3list.append(he3list[-1])
-    he4list.append(he4list[-1])
-    c12list.append(c12list[-1])
-    n14list.append(n14list[-1])
-    o16list.append(o16list[-1])
-    ne20list.append(ne20list[-1])
-    mg24list.append(mg24list[-1])
-    poverrho53.append(poverrho53[-1])
+#    xq_mass_fraction.append(1.01)
+#    q_mass_fraction.append(-0.01)
+#    mass.append(mass[-1])
+#    radius.append(radius[-1])
+#    pressure.append(pressure[-1])
+#    density.append(density[-1])
+#    specThermEnergy.append(specThermEnergy[-1])
+#    jrotlist.append(jrotlist[-1])
+#    templist.append(templist[-1])
+#    h1list.append(h1list[-1])
+#    he3list.append(he3list[-1])
+#    he4list.append(he4list[-1])
+#    c12list.append(c12list[-1])
+#    n14list.append(n14list[-1])
+#    o16list.append(o16list[-1])
+#    ne20list.append(ne20list[-1])
+#    mg24list.append(mg24list[-1])
+#    poverrho53.append(poverrho53[-1])
 
-    xq_mass_fraction.append(1.02)
-    q_mass_fraction.append(-0.02)
-    mass.append(mass[-1])
-    radius.append(radius[-1])
-    pressure.append(pressure[-1])
-    density.append(density[-1])
-    specThermEnergy.append(specThermEnergy[-1])
-    jrotlist.append(jrotlist[-1])
-    templist.append(templist[-1])
-    h1list.append(h1list[-1])
-    he3list.append(he3list[-1])
-    he4list.append(he4list[-1])
-    c12list.append(c12list[-1])
-    n14list.append(n14list[-1])
-    o16list.append(o16list[-1])
-    ne20list.append(ne20list[-1])
-    mg24list.append(mg24list[-1])
-    poverrho53.append(poverrho53[-1])
+#    xq_mass_fraction.append(1.02)
+#    q_mass_fraction.append(-0.02)
+#    mass.append(mass[-1])
+#    radius.append(radius[-1])
+#    pressure.append(pressure[-1])
+#    density.append(density[-1])
+#    specThermEnergy.append(specThermEnergy[-1])
+#    jrotlist.append(jrotlist[-1])
+#    templist.append(templist[-1])
+#    h1list.append(h1list[-1])
+#    he3list.append(he3list[-1])
+#    he4list.append(he4list[-1])
+#    c12list.append(c12list[-1])
+#    n14list.append(n14list[-1])
+#    o16list.append(o16list[-1])
+#    ne20list.append(ne20list[-1])
+#    mg24list.append(mg24list[-1])
+#    poverrho53.append(poverrho53[-1])
 
     # creates an equation for the data of mass fraction vs density,
     # mass fraction vs specific thermal energy, and mass fraction and angular momentum
@@ -319,7 +319,7 @@ def entropy_reader(mode,path):
         'Mg24':mg24
     }
     
-    mycompositionfile = open("composition.dat", "w")
+    mycompositionfile = open(f"composition{starnum}.dat", "w")
 
     mycompositionfile.write(f"{num_zones[0]}    {8}\n")
 
@@ -350,7 +350,7 @@ def entropy_reader(mode,path):
 
     # this writes the entropy.dat file to be used in mesa
 
-    myentropyfile = open("entropy.dat", "w")
+    myentropyfile = open(f"entropy{starnum}.dat", "w")
 
     # includes the number of zones at the top of the file
     myentropyfile.write(f"{num_zones[0]}\n")
@@ -389,7 +389,7 @@ def entropy_reader(mode,path):
 
     # this writes the angular_momentum.dat file to be used in mesa
 
-    myjrotfile = open("angular_momentum.dat", "w")
+    myjrotfile = open(f"angular_momentum{starnum}.dat", "w")
 
     # includes the number of zones at the top of the file
     myjrotfile.write(f"{num_zones[0]}\n")
@@ -426,7 +426,7 @@ def entropy_reader(mode,path):
     print(f'X: {weightedH1}\nY: {weightedHe4}\nZ: {Z}\n')
     print(f'H1: {weightedH1}\nHe3: {weightedHe3}\nHe4: {weightedHe4}\nC12: {weightedC12}\nN14: {weightedN14} \nO16: {weightedO16}\nNe20: {weightedNe20}\nMg24: {weightedMg24}')
 
-    with open('sph_star.dat','a') as f:
+    with open(f'sph_star{starnum}.dat','a') as f:
         f.write(f'X:                                {weightedH1}\n')
         f.write(f'Y:                                {weightedHe4}\n')
         f.write(f'Z:                                {Z}\n')
@@ -477,7 +477,7 @@ def entropy_reader(mode,path):
     ax[2,1].set_yscale('log')
     ax[2,1].set_xlim(1.1,-0.1)
 
-    plt.show()
+    #plt.show()
 
     # plots as a function or radius
     f,ax = plt.subplots(3,2,sharex=True,figsize=(8,8))
@@ -513,7 +513,7 @@ def entropy_reader(mode,path):
     ax[2,1].set_xlabel(r'R [R$_{\odot}$]')
     ax[2,1].set_yscale('log')
 
-    plt.show()
+    #plt.show()
 
     # graphs H1 and He4
 
@@ -532,7 +532,7 @@ def entropy_reader(mode,path):
 
     ax.legend(loc='best')
         
-    plt.show()
+    #plt.show()
 
 
     # graphs H1 and He4 vs radius
@@ -545,6 +545,6 @@ def entropy_reader(mode,path):
     ax.set_xlabel(r'R [R$_{\odot}$]')
     ax.set_ylabel('Fraction')
 
-    plt.show()
+    #plt.show()
 
     return interp_data
