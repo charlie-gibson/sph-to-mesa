@@ -240,7 +240,11 @@ def readit_collision(nnit, iform=4, ascii = False):
             n2 = np.fromfile(f, dtype=np.int32, count=1, sep="")
             n2=int(n2)
             cc2val=cc[-1]
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> 80b51c09b6d14c8c80b29d98c4f2b29bcd6c776d
         print(f'n1 = {n1}     n2 = {n2}')
             
         if ntot!=n1+n2:

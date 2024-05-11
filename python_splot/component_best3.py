@@ -47,8 +47,13 @@ def compbest3(nout,data,icomp,write=True,internal_energy_fraction=0.):
     
     print("DATA RETRIEVED")
 
+<<<<<<< HEAD
     #enth = np.zeros(ntot)
     enth = internal_energy_fraction*np.array(u)
+=======
+    #enth = u
+    enth = np.zeros(ntot)
+>>>>>>> 80b51c09b6d14c8c80b29d98c4f2b29bcd6c776d
 
     ncomp1 = 0
     ncomp2 = 0
@@ -159,6 +164,7 @@ def compbest3(nout,data,icomp,write=True,internal_energy_fraction=0.):
 
         #print(np.where(valid_bi1))
 
+<<<<<<< HEAD
         #valid_condition_1 = valid_bi1 & ((bi2 >= 0) | (ri1 < ri2)) & ((bi3 >= 0) | (ri1 < ri3))
         #valid_condition_2 = valid_bi2 & ((bi1 >= 0) | (ri2 < ri1)) & ((bi3 >= 0) | (ri2 < ri3))
         #valid_condition_3 = valid_bi3 & ((bi1 >= 0) | (ri3 < ri1)) & ((bi2 >= 0) | (ri3 < ri2))
@@ -170,6 +176,11 @@ def compbest3(nout,data,icomp,write=True,internal_energy_fraction=0.):
         valid_condition_1 = valid_bi1 & (bi1 <= bi2) & (bi1 <= bi3)
         valid_condition_2 = valid_bi2 & (bi2 < bi1) & (bi2 <= bi3)
         valid_condition_3 = valid_bi3 & (bi3 < bi1) & (bi3 < bi2)
+=======
+        valid_condition_1 = valid_bi1 & ((bi2 >= 0) | (ri1 < ri2)) & ((bi3 >= 0) | (ri1 < ri3))
+        valid_condition_2 = valid_bi2 & ((bi1 >= 0) | (ri2 < ri1)) & ((bi3 >= 0) | (ri2 < ri3))
+        valid_condition_3 = valid_bi3 & ((bi1 >= 0) | (ri3 < ri1)) & ((bi2 >= 0) | (ri3 < ri2))
+>>>>>>> 80b51c09b6d14c8c80b29d98c4f2b29bcd6c776d
 
 #        ic = np.where(valid_condition_1, 1, np.where(valid_condition_2, 2, np.where(valid_condition_3, 3, 4)))
 
