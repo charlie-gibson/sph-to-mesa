@@ -21,8 +21,15 @@ Note that the original code was written by Hans Vanderzyden and ChatGPT was used
 lot of the conversion
 """
 
-def readit_collision(nnit, iform):
+# reads in the collision
+def readit_collision(nnit, iform=4, ascii = False):
     
+    """
+    nnit: output number
+    iform: from original Fortran splot - not used - set to 4
+    ascii: True if the data being read in is to be written to an ascii output file
+    """
+
     # imports the necessary modules for the binary file readin
     import mmap # used for optimization
     import os
@@ -73,86 +80,94 @@ def readit_collision(nnit, iform):
     if fileexists:
 
         # reads the file in as binary
+        m = 0
         with open(FNAME, 'rb') as f:
 
-            # uses mmap to read in the header data
-            # these values correspond to the input data from sph.input in the StarSmasher run
+            # creates a memory map of the out*.sph file
             with mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ) as mm:
+                # accounts for junk data at the beginning of the file
                 offset = 4
-                ntot, nnopt = np.frombuffer(mm, dtype=np.int32, count=2, offset=offset)
-                offset += 2 * np.dtype(np.int32).itemsize
-                hco, hfloor, sep0, tf, dtout = np.frombuffer(mm, dtype=np.float64, count=5, offset=offset)
-                offset += 5 * np.dtype(np.float64).itemsize
-                nout, nit = np.frombuffer(mm, dtype=np.int32, count=2, offset=offset)
-                offset += 2 * np.dtype(np.int32).itemsize
-                t = np.frombuffer(mm, dtype=np.float64, count=1, offset=offset)[0]
-                offset += np.dtype(np.float64).itemsize
-                nav = np.frombuffer(mm, dtype=np.int32, count=1, offset=offset)[0]
-                offset += np.dtype(np.int32).itemsize
-                alpha, beta, tjumpahead = np.frombuffer(mm, dtype=np.float64, count=3, offset=offset)
-                offset += 3 * np.dtype(np.float64).itemsize
-                ngr, nrelax = np.frombuffer(mm, dtype=np.int32, count=2, offset=offset)
-                offset += 2 * np.dtype(np.int32).itemsize
-                trelax, dt, omega2 = np.frombuffer(mm, dtype=np.float64, count=3, offset=offset)
-                offset += 3 * np.dtype(np.float64).itemsize
-                ncooling = np.frombuffer(mm, dtype=np.int32, count=1, offset=offset)[0]
-                offset += np.dtype(np.int32).itemsize
-                erad = np.frombuffer(mm, dtype=np.float64, count=1, offset=offset)[0]
-                offset += np.dtype(np.float64).itemsize
-                ndisplace = np.frombuffer(mm, dtype=np.int32, count=1, offset=offset)[0]
-                offset += np.dtype(np.int32).itemsize
-                displacex, displacey, displacez = np.frombuffer(mm, dtype=np.float64, count=3, offset=offset)
-                offset += 3 * np.dtype(np.float64).itemsize
-                junk = np.frombuffer(mm, dtype=np.float64, count=1, offset=offset)[0]
-                print("HEADERS READ IN")
+        
+                # Read header data: integer values have 32 bytes and float values have 64 bytes
+                header_dtype = np.dtype([
+                    ('ntot', np.int32), ('nnopt', np.int32), ('hco', np.float64), ('hfloor', np.float64),
+                    ('sep0', np.float64), ('tf', np.float64), ('dtout', np.float64), ('nout', np.int32),
+                    ('nit', np.int32), ('t', np.float64), ('nav', np.int32), ('alpha', np.float64),
+                    ('beta', np.float64), ('tjumpahead', np.float64), ('ngr', np.int32), ('nrelax', np.int32),
+                    ('trelax', np.float64), ('dt', np.float64), ('omega2', np.float64), ('ncooling', np.int32),
+                    ('erad', np.float64), ('ndisplace', np.int32), ('displacex', np.float64), ('displacey', np.float64),
+                    ('displacez', np.float64), ('junk', np.float64)
+                ])
+                header_data = np.frombuffer(mm, dtype=header_dtype, count=1, offset=offset)
 
-                # prints number of particles
-                global NCHK
-                NCHK = ntot
-                print('NCHK=', NCHK)
+                # Extracts values from header data
+                ntot = header_data['ntot'][0]
+                nnopt = header_data['nnopt'][0]
+                hco = header_data['hco'][0]
+                hfloor = header_data['hfloor'][0]
+                sep0 = header_data['sep0'][0]
+                tf = header_data['tf'][0]
+                dtout = header_data['dtout'][0]
+                nout = header_data['nout'][0]
+                nit = header_data['nit'][0]
+                t = header_data['t'][0]
+                nav = header_data['nav'][0]
+                alpha = header_data['alpha'][0]
+                beta = header_data['beta'][0]
+                tjumpahead = header_data['tjumpahead'][0]
+                ngr = header_data['ngr'][0]
+                nrelax = header_data['nrelax'][0]
+                trelax = header_data['trelax'][0]
+                dt = header_data['dt'][0]
+                omega2 = header_data['omega2'][0]
+                ncooling = header_data['ncooling'][0]
+                erad = header_data['erad'][0]
+                ndisplace = header_data['ndisplace'][0]
+                displacex = header_data['displacex'][0]
+                displacey = header_data['displacey'][0]
+                displacez = header_data['displacez'][0]
 
-                m = 0
+                # creates a list of header data for later access
+                # removes reliance on memory map
+                header_data = [ntot,nnopt,hco,hfloor,sep0,tf,dtout,nout,nit,t,nav,alpha,\
+                beta,tjumpahead,ngr,nrelax,trelax,dt,omega2,ncooling,erad,ndisplace,\
+                displacex,displacey,displacez]
 
-                # assigns values for each particle
-                for i in range(ntot):
-                    offset += np.dtype(np.float64).itemsize
-                    xvar, yvar, zvar, amvar, hpvar, rhovar, vxvar, vyvar, vzvar, vxdotvar,\
-                        vydotvar, vzdotvar, uvar, udotvar, grpotvar, meanmolecularvar \
-                        = np.frombuffer(mm, dtype=np.float64, count=16, offset=offset)
-                    offset += np.dtype(np.float64).itemsize * 16
-                    ccvar = np.frombuffer(mm, dtype=np.int32, count=1, offset=offset)[0]
-                    offset += np.dtype(np.int32).itemsize
-                    divvvar, aavar, bbvar, ddvar = np.frombuffer(mm, dtype=np.float64, count=4, offset=offset)
-                    offset += np.dtype(np.float64).itemsize * 4
-                    junk = np.frombuffer(mm, dtype=np.float64, count=1, offset=offset)[0]
-
-                    # adds the particle data to each list intialized above
-                    # check if i can speed this up without append
-                    if rhovar != 0:
-                        x.append(xvar)
-                        y.append(yvar)
-                        z.append(zvar)
-                        am.append(amvar)
-                        hp.append(hpvar)
-                        rho.append(rhovar)
-                        vx.append(vxvar)
-                        vy.append(vyvar)
-                        vz.append(vzvar)
-                        vxdot.append(vxdotvar)
-                        vydot.append(vydotvar)
-                        vzdot.append(vzdotvar)
-                        u.append(uvar)
-                        udot.append(udotvar)
-                        grpot.append(grpotvar)
-                        meanmolecular.append(meanmolecularvar)
-                        cc.append(ccvar)
-                        divv.append(divvvar)
-                        aa.append(aavar)
-                        bb.append(bbvar)
-                        dd.append(ddvar)
-                    else:
-                        m += 1
-
+                # Batch read particle data
+                particle_dtype = np.dtype([
+                    ('x', np.float64), ('y', np.float64), ('z', np.float64), ('am', np.float64),
+                    ('hp', np.float64), ('rho', np.float64), ('vx', np.float64), ('vy', np.float64),
+                    ('vz', np.float64), ('vxdot', np.float64), ('vydot', np.float64), ('vzdot', np.float64),
+                    ('u', np.float64), ('udot', np.float64), ('grpot', np.float64), ('meanmolecular', np.float64),
+                    ('cc', np.int32), ('divv', np.float64), ('aa', np.float64), ('bb', np.float64),
+                    ('dd', np.float64), ('junk', np.float64)
+                ])
+                # avoids having to loop over the entire file
+                particle_data = np.frombuffer(mm, dtype=particle_dtype, count=ntot, offset=offset + np.dtype(header_dtype).itemsize)
+                
+                # Extract values from particle data
+                x = particle_data['x']
+                y = particle_data['y']
+                z = particle_data['z']
+                am = particle_data['am']
+                hp = particle_data['hp']
+                rho = particle_data['rho']
+                vx = particle_data['vx']
+                vy = particle_data['vy']
+                vz = particle_data['vz']
+                vxdot = particle_data['vxdot']
+                vydot = particle_data['vydot']
+                vzdot = particle_data['vzdot']
+                u = particle_data['u']
+                udot = particle_data['udot']
+                grpot = particle_data['grpot']
+                meanmolecular = particle_data['meanmolecular']
+                cc = particle_data['cc']
+                divv = particle_data['divv']
+                aa = particle_data['aa']
+                bb = particle_data['bb']
+                dd = particle_data['dd']
+                
                 print("DATA READ IN")
 
                 # converts all data to numpy arrays
@@ -182,7 +197,7 @@ def readit_collision(nnit, iform):
     else:
         print('Ran out of output files')
     
-    ntot -= m
+    # ntot -= m
 
     # updates all velocities based on their accelerations
     # to corerct the leapfrog integration technique
@@ -211,18 +226,21 @@ def readit_collision(nnit, iform):
             vx[i] = vxold * np.cos(theta) - vyold * np.sin(theta) - np.sqrt(omega2) * x[i]
             vy[i] = vxold * np.sin(theta) + vyold * np.cos(theta) + np.sqrt(omega2) * y[i]
 
+    # sees if there are initial stars in the collision to get the number of particles
+    # from star 1 and star 2
     try:
         with open('sph.start1u', 'rb') as f:
             f.seek(4) # skips the first 4 bytes of the file (there is some sort of junk data, idk why?)
             n1 = np.fromfile(f, dtype=np.int32, count=1, sep="")
             n1=int(n1)
+            cc1val=cc[0]
             
-
         with open('sph.start2u','rb') as f:
             f.seek(4) # skips the first 4 bytes of the file (there is some sort of junk data, idk why?)
             n2 = np.fromfile(f, dtype=np.int32, count=1, sep="")
             n2=int(n2)
-            
+            cc2val=cc[-1]
+
         print(f'n1 = {n1}     n2 = {n2}')
             
         if ntot!=n1+n2:
@@ -259,8 +277,11 @@ def readit_collision(nnit, iform):
             'dtout':dtout,
             'dt':dt,
             'n1':n1,
-            'n2':n2
+            'n2':n2,
+            'cc1val':cc1val,
+            'cc2val':cc2val
         }
+    # if there are not separate n1 and n2 values (relaxation, TDE, etc.)
     except:
         data = {
             'ntot':int(ntot),
@@ -289,5 +310,9 @@ def readit_collision(nnit, iform):
             'dt':dt
         }
 
-    return data
-    
+    # returns header data for ascii output (splot option 0)
+    if ascii:
+        return data, header_data
+    # otherwise, skips header_data being returned
+    else:
+        return data

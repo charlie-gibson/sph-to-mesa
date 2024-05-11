@@ -24,7 +24,7 @@ Illinois Space Grant Consortium
 import numpy as np
 from composition_jpt_entropy_reader import entropy_reader
 
-def header_output(interp_data):
+def header_output(interp_data,star_num=1,opt=0):
     
     xq=interp_data['xq']
     q=interp_data['q']
@@ -43,9 +43,14 @@ def header_output(interp_data):
     Ne20=interp_data['Ne20']
     Mg24=interp_data['Mg24']
 
-    print('WRITING TO sphToMesa.out')
+    print(f'WRITING TO sphToMesa{star_num}.out')
     
-    with open('sphToMesa.out','w') as f:
+    if opt==0:
+        end_string='.out'
+    elif opt==1:
+        end_string='_hse.out'
+
+    with open(f'sphToMesa{star_num}'+end_string,'w') as f:
         f.write('xq     q     r     rho     P     A     T     jrot     H1     He3     He4     C12     N14     O16     Ne20     Mg24\n')
 
         for i in range(len(xq)):

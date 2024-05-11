@@ -1,11 +1,11 @@
-def v():
+def v(num=0):
     import matplotlib.pyplot as plt
     import numpy as np
 
 
     # reads in energy0.sph: change this if you have higher numbers of simulations in the same directory
     # e.g. energy1.sph, energy2.sph, etc.
-    filename = 'energy0.sph'
+    filename = f'energy{num}.sph'
 
     # collects the data outputted to energy*.sph
     time = []
