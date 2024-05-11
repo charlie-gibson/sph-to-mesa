@@ -7,7 +7,7 @@ Allegheny College
 Department of Physics
 """
 
-def bound_particle_data(data, component, composition,component_val=1):
+def bound_particle_data(data, component, composition,jrot=0,temp=0,press=0,component_val=1):
 
     import numpy as np
 
@@ -34,6 +34,13 @@ def bound_particle_data(data, component, composition,component_val=1):
     # aa = data['aa']
     # bb = data['bb']
     # dd = data['dd']
+    try:
+        n1 = data['n1']
+        n2 = data['n2']
+        cc1val = data['cc1val']
+        cc2val = data['cc2val']
+    except:
+        pass
 
     h1 = composition[0]
     he3 = composition[1]
@@ -43,6 +50,13 @@ def bound_particle_data(data, component, composition,component_val=1):
     o16 = composition[5]
     ne20 = composition[6]
     mg24 = composition[7]
+
+    #try:
+    #    junk=jrot[ntot]
+    #except:
+    #    jrot=np.zeros(ntot)
+    #    press=np.zeros(ntot)
+    #    temp=np.zeros(ntot)
 
     boundx = []
     boundy = []
@@ -62,6 +76,9 @@ def bound_particle_data(data, component, composition,component_val=1):
     boundmeanmolecular = []
     boundcc = []
     bounddivv = []
+    bound_jrot = []
+    bound_temp = []
+    bound_pressure = []
     # boundaa = []
     # boundbb = []
     # bounddd = []
@@ -73,6 +90,8 @@ def bound_particle_data(data, component, composition,component_val=1):
     boundo16 = []
     boundne20 = []
     boundmg24 = []
+
+    indices = []
 
     n = 0
 
@@ -96,6 +115,9 @@ def bound_particle_data(data, component, composition,component_val=1):
             boundmeanmolecular.append(meanmolecular[n])
             boundcc.append(cc[n])
             bounddivv.append(divv[n])
+            bound_jrot.append(jrot[n])
+            bound_temp.append(temp[n])
+            bound_pressure.append(press[n])
             # boundaa.append(aa[n])
             # boundbb.append(bb[n])
             # bounddd.append(dd[n])
@@ -108,6 +130,8 @@ def bound_particle_data(data, component, composition,component_val=1):
             boundo16.append(o16[n])
             boundne20.append(ne20[n])
             boundmg24.append(mg24[n])
+
+            indices.append(n)
         
         n += 1
     
@@ -129,6 +153,9 @@ def bound_particle_data(data, component, composition,component_val=1):
     boundmeanmolecular = np.array(boundmeanmolecular)
     boundcc = np.array(boundcc)
     bounddivv = np.array(bounddivv)
+    bound_jrot=np.array(bound_jrot)
+    bound_temp=np.array(bound_temp)
+    bound_pressure=np.array(bound_pressure)
 
     # h1 = np.array(h1)
     # he3 = np.array(he3)
@@ -139,34 +166,70 @@ def bound_particle_data(data, component, composition,component_val=1):
     # ne20 = np.array(ne20)
     # mg24 = np.array(mg24)
     
-    bound_data = {
-        'ntot':len(boundx),
-        'x':boundx,
-        'y':boundy,
-        'z':boundz,
-        'am':boundam,
-        'hp':boundhp,
-        'rho':boundrho,
-        'vx':boundvx,
-        'vy':boundvy,
-        'vz':boundvz,
-        'vxdot':boundvxdot,
-        'vydot':boundvydot,
-        'vzdot':boundvzdot,
-        'u':boundu,
-        'udot':boundudot,
-        'grpot':boundgrpot,
-        'meanmolecular':boundmeanmolecular,
-        'cc':boundcc,
-        'divv':bounddivv,
-        # 'aa':boundaa,
-        # 'bb':boundbb,
-        # 'dd':bounddd
-    }
+    try:
+        bound_data = {
+            'ntot':len(boundx),
+            'x':boundx,
+            'y':boundy,
+            'z':boundz,
+            'am':boundam,
+            'hp':boundhp,
+            'rho':boundrho,
+            'vx':boundvx,
+            'vy':boundvy,
+            'vz':boundvz,
+            'vxdot':boundvxdot,
+            'vydot':boundvydot,
+            'vzdot':boundvzdot,
+            'u':boundu,
+            'udot':boundudot,
+            'grpot':boundgrpot,
+            'meanmolecular':boundmeanmolecular,
+            'cc':boundcc,
+            'divv':bounddivv,
+            # 'aa':boundaa,
+            # 'bb':boundbb,
+            # 'dd':bounddd
+            'cc1val':cc1val,
+            'cc2val':cc2val,
+            'n1':n1,
+            'n2':n2,
+            'indices':indices
+        }
+    except:
+        bound_data = {
+            'ntot':len(boundx),
+            'x':boundx,
+            'y':boundy,
+            'z':boundz,
+            'am':boundam,
+            'hp':boundhp,
+            'rho':boundrho,
+            'vx':boundvx,
+            'vy':boundvy,
+            'vz':boundvz,
+            'vxdot':boundvxdot,
+            'vydot':boundvydot,
+            'vzdot':boundvzdot,
+            'u':boundu,
+            'udot':boundudot,
+            'grpot':boundgrpot,
+            'meanmolecular':boundmeanmolecular,
+            'cc':boundcc,
+            'divv':bounddivv,
+            'indices':indices
+            # 'aa':boundaa,
+            # 'bb':boundbb,
+            # 'dd':bounddd
+           # 'cc1val':cc1val,
+           # 'cc2val':cc2val,
+           # 'n1':n1,
+           # 'n2':n2
+        }        
 
     print("Number of bound particles to the star =", len(boundrho))
     # print(boundrho)
 
     bound_composition = [boundh1, boundhe3, boundhe4, boundc12, boundn14, boundo16, boundne20, boundmg24]
 
-    return bound_data, bound_composition
+    return bound_data,bound_composition,bound_jrot,bound_temp,bound_pressure
