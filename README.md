@@ -35,6 +35,12 @@ This will return a path showing where python3 is installed. Copy this path to th
 ```
 Make sure to include python3 at the end of the path
 
+If this still does not work, the file may not be fully in Unix formatting. If operating on a Windows machine, run the command
+```
+cd
+dos2unix bin/splot
+```
+
 ## Running Splot
 
 From there, you are given several options for analysis procedures. Each option is briefly explained below:
