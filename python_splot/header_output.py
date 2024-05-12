@@ -24,7 +24,15 @@ Illinois Space Grant Consortium
 import numpy as np
 from composition_jpt_entropy_reader import entropy_reader
 
+<<<<<<< HEAD
 def header_output(interp_data,star_num=1,opt=0):
+=======
+<<<<<<< HEAD
+def header_output(interp_data,star_num=1,opt=0):
+=======
+def header_output(interp_data,star_num=1):
+>>>>>>> 80b51c09b6d14c8c80b29d98c4f2b29bcd6c776d
+>>>>>>> 706dca6185b661b857fdf6d3337257d9d53c74ff
     
     xq=interp_data['xq']
     q=interp_data['q']
@@ -45,12 +53,22 @@ def header_output(interp_data,star_num=1,opt=0):
 
     print(f'WRITING TO sphToMesa{star_num}.out')
     
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 706dca6185b661b857fdf6d3337257d9d53c74ff
     if opt==0:
         end_string='.out'
     elif opt==1:
         end_string='_hse.out'
 
     with open(f'sphToMesa{star_num}'+end_string,'w') as f:
+<<<<<<< HEAD
+=======
+=======
+    with open(f'sphToMesa{star_num}.out','w') as f:
+>>>>>>> 80b51c09b6d14c8c80b29d98c4f2b29bcd6c776d
+>>>>>>> 706dca6185b661b857fdf6d3337257d9d53c74ff
         f.write('xq     q     r     rho     P     A     T     jrot     H1     He3     He4     C12     N14     O16     Ne20     Mg24\n')
 
         for i in range(len(xq)):
