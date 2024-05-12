@@ -193,17 +193,8 @@ def bound_particle_data(data, component, composition,jrot=0,temp=0,press=0,compo
             'cc1val':cc1val,
             'cc2val':cc2val,
             'n1':n1,
-<<<<<<< HEAD
             'n2':n2,
             'indices':indices
-=======
-<<<<<<< HEAD
-            'n2':n2,
-            'indices':indices
-=======
-            'n2':n2
->>>>>>> 80b51c09b6d14c8c80b29d98c4f2b29bcd6c776d
->>>>>>> 706dca6185b661b857fdf6d3337257d9d53c74ff
         }
     except:
         bound_data = {
@@ -225,17 +216,8 @@ def bound_particle_data(data, component, composition,jrot=0,temp=0,press=0,compo
             'grpot':boundgrpot,
             'meanmolecular':boundmeanmolecular,
             'cc':boundcc,
-<<<<<<< HEAD
             'divv':bounddivv,
             'indices':indices
-=======
-<<<<<<< HEAD
-            'divv':bounddivv,
-            'indices':indices
-=======
-            'divv':bounddivv
->>>>>>> 80b51c09b6d14c8c80b29d98c4f2b29bcd6c776d
->>>>>>> 706dca6185b661b857fdf6d3337257d9d53c74ff
             # 'aa':boundaa,
             # 'bb':boundbb,
             # 'dd':bounddd

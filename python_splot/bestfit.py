@@ -19,10 +19,10 @@ Department of Physics
 def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
 
     # from readit import readit
-    #from get_temperature import get_temperature
+    from get_temperature import get_temperature
     import numpy as np
-    #from eos_func import read_eos
-    #from eos_func import useeostable
+    from eos_func import read_eos
+    from eos_func import useeostable
 
     # uses the lists in data (a dictionary) to determine the variables for calculations
     ntot = int(data['ntot']) # number of particles
@@ -256,18 +256,9 @@ def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
     rhoavg = np.zeros(nbinsbf)
     ravg = np.zeros(nbinsbf)
     jrotavg = np.zeros(nbinsbf)
-<<<<<<< HEAD
     jrotavgx = np.zeros(nbinsbf)
     jrotavgy = np.zeros(nbinsbf)
     jrotavgz = np.zeros(nbinsbf)
-=======
-<<<<<<< HEAD
-    jrotavgx = np.zeros(nbinsbf)
-    jrotavgy = np.zeros(nbinsbf)
-    jrotavgz = np.zeros(nbinsbf)
-=======
->>>>>>> 80b51c09b6d14c8c80b29d98c4f2b29bcd6c776d
->>>>>>> 706dca6185b661b857fdf6d3337257d9d53c74ff
     radius = 0
     tavg = np.zeros(nbinsbf)
     pavg = np.zeros(nbinsbf)
@@ -310,10 +301,6 @@ def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
         r_array[i] += r
         v = np.linalg.norm(vvec) # this is the speed of the v vector relative to the center of mass
         ravg[index] += r * am[i] # this gives the distance times the mass of the particle
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 706dca6185b661b857fdf6d3337257d9d53c74ff
         # jrotavg[index] += am[i] * (jrot[i][0] + jrot[i][1] + jrot[i][2])  # this gives the angular momentum times the mass of the particle
         jrotavgx[index] += am[i] * jrotx[i] #* j_unit_vec[0]
         jrotavgy[index] += am[i] * jroty[i] #* j_unit_vec[1]
@@ -321,13 +308,6 @@ def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
         # jrotavg[index] += np.linalg.norm([jrotavgx[index], jrotavgy[index], jrotavgz[index]])
         # jrotavg[index] += jrotavgx[index] + jrotavgy[index] + jrotavgz[index]
         # tavg[index] += temp[i] * am[i]
-<<<<<<< HEAD
-=======
-=======
-        jrotavg[index] += am[i] * jrot[i]  # this gives the angular momentum times the mass of the particle
-        tavg[index] += temp[i] * am[i]
->>>>>>> 80b51c09b6d14c8c80b29d98c4f2b29bcd6c776d
->>>>>>> 706dca6185b661b857fdf6d3337257d9d53c74ff
         pavg[index] += pgas[i] * am[i]
 
         # composition data
@@ -345,15 +325,7 @@ def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
             radius = r
             aimax = u[i]
             rhomin = rho[i]
-<<<<<<< HEAD
             jrotmax = np.linalg.norm([jrotx[i], jroty[i], jrotz[i]])
-=======
-<<<<<<< HEAD
-            jrotmax = np.linalg.norm([jrotx[i], jroty[i], jrotz[i]])
-=======
-            jrotmax = jrot[i]
->>>>>>> 80b51c09b6d14c8c80b29d98c4f2b29bcd6c776d
->>>>>>> 706dca6185b661b857fdf6d3337257d9d53c74ff
             tmax = temp[i]
             pmax = pgas[i]
 
@@ -540,10 +512,6 @@ def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
             uiavg[index] = uiavg[index] / amavg[index]
             rhoavg[index] = rhoavg[index] / amavg[index]
             ravg[index] = ravg[index] / amavg[index]
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 706dca6185b661b857fdf6d3337257d9d53c74ff
             L_x[index] = jrotavgx[index]
             L_y[index] = jrotavgy[index]
             L_z[index] = jrotavgz[index]
@@ -555,13 +523,6 @@ def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
             # jrotavg[index] = np.linalg.norm([jrotavgx[index], jrotavgy[index], jrotavgz[index]])
             jrotavg[index] = jrotavgx[index]*j_unit_vec[0] + jrotavgy[index]*j_unit_vec[1] + jrotavgz[index]*j_unit_vec[2]
             # jrotavg[index] = jrotavgz[index]
-<<<<<<< HEAD
-=======
-=======
-            # jrotavg[index] = np.linalg.norm(jrotavg[index]) / amavg[index]
-            jrotavg[index]=jrotavg[index]/amavg[index]
->>>>>>> 80b51c09b6d14c8c80b29d98c4f2b29bcd6c776d
->>>>>>> 706dca6185b661b857fdf6d3337257d9d53c74ff
             tavg[index] = tavg[index] / amavg[index]
             # pavg[index] = pavg[index] / amavg[index]
 
@@ -624,10 +585,6 @@ def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
 
         f.close()
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 706dca6185b661b857fdf6d3337257d9d53c74ff
     # L_x_tot = np.sum(L_x)
     L_x_tot = np.sum(jrotx * am)
     # L_y_tot = np.sum(L_y)
@@ -644,32 +601,13 @@ def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
         f.write(f'Radius:                            {radius}\n')
         f.write(f'Particles:                         {ntot}\n')
         f.write(f'Particles for inner 50% of mass:   {half_mass_array.shape[0]}\n')
-<<<<<<< HEAD
-=======
-=======
-    with open(f'sph_star{starnum}.dat','w') as f:
-        f.write(f'Mass:                             {np.sum(am)}\n')
-        f.write(f'Radius:                           {radius}\n')
-        f.write(f'Particles:                        {ntot}\n')
-        f.write(f'Particles for inner 50% of mass:  {half_mass_array.shape[0]}\n')
->>>>>>> 80b51c09b6d14c8c80b29d98c4f2b29bcd6c776d
->>>>>>> 706dca6185b661b857fdf6d3337257d9d53c74ff
         f.write(f'Star 1 Particles:                  {star1}\n')
         f.write(f'Star 2 Particles:                  {star2}\n')
         f.write(f'Star 1 Fractional Mass:            {star1_m/amasstot}\n')
         f.write(f'Star 2 Fractional Mass:            {star2_m/amasstot}\n')
-<<<<<<< HEAD
         f.write(f'Total Angular Momentum:            {L_tot}\n')
         # f.write(f'Total Specific Angular Momentum:   {L_tot/(np.sum(am)*munit):e}\n')
         f.write(f'Total Specific Angular Momentum:   {j_tot_magn * runit**2 / tunit:e}\n')
-=======
-<<<<<<< HEAD
-        f.write(f'Total Angular Momentum:            {L_tot}\n')
-        # f.write(f'Total Specific Angular Momentum:   {L_tot/(np.sum(am)*munit):e}\n')
-        f.write(f'Total Specific Angular Momentum:   {j_tot_magn * runit**2 / tunit:e}\n')
-=======
->>>>>>> 80b51c09b6d14c8c80b29d98c4f2b29bcd6c776d
->>>>>>> 706dca6185b661b857fdf6d3337257d9d53c74ff
         f.close()
 
     print("Leaving BESTFIT")
