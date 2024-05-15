@@ -11,6 +11,14 @@ cd /home/{user}
 git clone https://github.com/charlie-gibson/sph-to-mesa.git
 ```
 
+You will also need to unzip the sph.eos* files:
+```
+cd
+cd sph-to-mesa/python_splot
+gzip -d sph.eos_X0.00to0.75step0.05.gz
+gzip -d sph.eos_X0.00to0.75step0.05.gz_entropy
+```
+
 # General Usage
 There are two ways to operate this code:
 
@@ -167,7 +175,7 @@ The following scripts are for generating the necessary MESA files:
 
 $X_j=\frac{1}{\rho_j}\sum_k{X_km_kW_{jk}(h_j)},$
 
-* where $\rho$ is the density of the particle, $X$ is the value being smoothed, $m$ is the mass of the particle, and $W$ is the (Wendlend C4) Kernel
+* where $\rho$ is the density of the particle, $X$ is the value being smoothed, $m$ is the mass of the particle, and $W$ is the (Wendland C4) Kernel
 * scipy kdtree is used to calcluate the neighbors in the calculation
 
 ## bestfit.py
