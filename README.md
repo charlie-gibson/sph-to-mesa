@@ -28,9 +28,12 @@ cd /path/to/working/directory
 cp /home/{user}/sph-to-mesa/splot.py .
 python3 splot.py
 ```
-2. Copy splot.py to your bin and run it as an executable from anywhere (even if splot.py is not in your current directory!)
+2. Copy splot.py to your bin, ensure it's an executable, and run it from anywhere (even if splot.py is not in your current directory!)
 ```
 cp /home/{user}/sph-to-mesa/splot.py /home{user}/bin/splot
+cd
+cd bin
+chmod a+x splot
 splot
 ```
 If the second option doesn't work, it is likely because the location of python3 is not the same on the machine that you are using. To fix this, use the following commands:
