@@ -22,12 +22,12 @@ lot of the conversion
 """
 
 # reads in the collision
-def readit_collision(nnit, iform=4, ascii = False):
+def readit_collision(nnit, iform=4, header = False):
     
     """
     nnit: output number
     iform: from original Fortran splot - not used - set to 4
-    ascii: True if the data being read in is to be written to an ascii output file
+    header: True if you want to return the header data
     """
 
     # imports the necessary modules for the binary file readin
@@ -38,8 +38,8 @@ def readit_collision(nnit, iform=4, ascii = False):
 
     # globalizes all variables so they can be accessed by other codes when this is imported elsewhere
     global x, y, z, am, hp, rho, vx, vy, vz, vxdot, \
-    vydot, vzdot, u, udot, grpot, meanmolecular, cc, divv, \
-    aa, bb, dd
+    vydot, vzdot, u, udot, grpot, meanmolecular, cc, divv#, \
+    #aa, bb, dd
     x = [] # x position of the particle
     y = [] # y position of the particle
     z = [] # z position of the particle
@@ -58,9 +58,9 @@ def readit_collision(nnit, iform=4, ascii = False):
     meanmolecular = [] # mean molecular weight of the particle
     cc = [] # integer labeling which parent star the particle came from
     divv = []
-    aa = []
-    bb = []
-    dd = []
+    #aa = []
+    #bb = []
+    #dd = []
 
     # used to ensure correct naming of the file
     if nnit < 10:
@@ -133,14 +133,17 @@ def readit_collision(nnit, iform=4, ascii = False):
                 beta,tjumpahead,ngr,nrelax,trelax,dt,omega2,ncooling,erad,ndisplace,\
                 displacex,displacey,displacez]
 
+                print(header_data)
+
                 # Batch read particle data
                 particle_dtype = np.dtype([
                     ('x', np.float64), ('y', np.float64), ('z', np.float64), ('am', np.float64),
                     ('hp', np.float64), ('rho', np.float64), ('vx', np.float64), ('vy', np.float64),
                     ('vz', np.float64), ('vxdot', np.float64), ('vydot', np.float64), ('vzdot', np.float64),
                     ('u', np.float64), ('udot', np.float64), ('grpot', np.float64), ('meanmolecular', np.float64),
-                    ('cc', np.int32), ('divv', np.float64), ('aa', np.float64), ('bb', np.float64),
-                    ('dd', np.float64), ('junk', np.float64)
+                    ('cc', np.int32), ('divv', np.float64)#, ('aa', np.float64), ('bb', np.float64),
+                    #('dd', np.float64)
+                    , ('junk', np.float64)
                 ])
                 # avoids having to loop over the entire file
                 particle_data = np.frombuffer(mm, dtype=particle_dtype, count=ntot, offset=offset + np.dtype(header_dtype).itemsize)
@@ -164,10 +167,11 @@ def readit_collision(nnit, iform=4, ascii = False):
                 meanmolecular = particle_data['meanmolecular']
                 cc = particle_data['cc']
                 divv = particle_data['divv']
-                aa = particle_data['aa']
-                bb = particle_data['bb']
-                dd = particle_data['dd']
-                
+                #aa = particle_data['aa']
+                #bb = particle_data['bb']
+                #dd = particle_data['dd']
+                # junk = particle_data['junk']
+
                 print("DATA READ IN")
 
                 # converts all data to numpy arrays
@@ -189,9 +193,9 @@ def readit_collision(nnit, iform=4, ascii = False):
                 meanmolecular = np.array(meanmolecular)
                 cc = np.array(cc)
                 divv = np.array(divv)
-                aa = np.array(aa)
-                bb = np.array(bb)
-                dd = np.array(dd)
+                #aa = np.array(aa)
+                #bb = np.array(bb)
+                #dd = np.array(dd)
 
     # this runs if there is no more matching file requested
     else:
@@ -201,11 +205,13 @@ def readit_collision(nnit, iform=4, ascii = False):
 
     # updates all velocities based on their accelerations
     # to corerct the leapfrog integration technique
-    vx -= 0.5*dt*vxdot
-    vy -= 0.5*dt*vydot
-    vz -= 0.5*dt*vzdot
-    u = [u[i] - 0.5*dt*udot[i] if u[i] != 0.0 else u[i] for i in range(ntot)]
-    t -= 0.5*dt
+    # skips this if writing to bound*.sph
+    if iform == 4:
+        vx -= 0.5*dt*vxdot
+        vy -= 0.5*dt*vydot
+        vz -= 0.5*dt*vzdot
+        u = [u[i] - 0.5*dt*udot[i] if u[i] != 0.0 else u[i] for i in range(ntot)]
+        t -= 0.5*dt
     
     print("VELOCITIES UPDATED")
 
@@ -271,9 +277,9 @@ def readit_collision(nnit, iform=4, ascii = False):
             'meanmolecular':meanmolecular,
             'cc':cc,
             'divv':divv,
-            'aa':aa,
-            'bb':bb,
-            'dd':dd,
+            #'aa':aa,
+            #'bb':bb,
+            #'dd':dd,
             'dtout':dtout,
             'dt':dt,
             'n1':n1,
@@ -303,15 +309,15 @@ def readit_collision(nnit, iform=4, ascii = False):
             'meanmolecular':meanmolecular,
             'cc':cc,
             'divv':divv,
-            'aa':aa,
-            'bb':bb,
-            'dd':dd,
+            #'aa':aa,
+            #'bb':bb,
+            #'dd':dd,
             'dtout':dtout,
             'dt':dt
         }
 
-    # returns header data for ascii output (splot option 0)
-    if ascii:
+    # returns header data such as for ascii output (splot option 0)
+    if header:
         return data, header_data
     # otherwise, skips header_data being returned
     else:
