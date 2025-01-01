@@ -16,7 +16,16 @@ Department of Physics
 """
 
 # data is read in using readit.py and passed through splot.py
-def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
+def bestfit(data, comp_data, neos,sph_input,jrot=2*['0'],temp=2*['0'],pgas=2*['0'],starnum=1):
+
+    import numpy as np
+
+    if jrot[0]=='0':
+        jrot = np.zeros((data['ntot'],3))
+    if temp[0]=='0':
+        temp = np.zeros(data['ntot'])
+    if pgas[0]=='0':
+        pgas = np.zeros(data['ntot'])
 
     # from readit import readit
     from get_temperature import get_temperature
@@ -263,6 +272,7 @@ def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
     tavg = np.zeros(nbinsbf)
     pavg = np.zeros(nbinsbf)
     r_array = np.zeros(ntot)
+    meanmolecularavg = np.zeros(nbinsbf)
 
     # composition arrays
     h1avg = np.zeros(nbinsbf)
@@ -309,6 +319,7 @@ def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
         # jrotavg[index] += jrotavgx[index] + jrotavgy[index] + jrotavgz[index]
         # tavg[index] += temp[i] * am[i]
         pavg[index] += pgas[i] * am[i]
+        meanmolecularavg[index] += meanmolecular[i] * am[i]
 
         # composition data
         h1avg[index] += h1[i] * am[i]
@@ -363,16 +374,19 @@ def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
     m2_cont = 0
     total_inner_mass = 0
 
-    for i in parent_indices:
-        if i < n1:
-            m1_cont += am[i]
-        else:
-            m2_cont += am[i]
+    try:
+        for i in parent_indices:
+            if i < n1:
+                m1_cont += am[i]
+            else:
+                m2_cont += am[i]
 
-        total_inner_mass += am[i]
+            total_inner_mass += am[i]
 
-    print('\n\n\nStar1:                ', m1_cont/total_inner_mass)
-    print('\n\n\nStar2:                ', m2_cont/total_inner_mass,'\n\n\n')
+        print('\n\n\nStar1:                ', m1_cont/total_inner_mass)
+        print('\n\n\nStar2:                ', m2_cont/total_inner_mass,'\n\n\n')
+    except UnboundLocalError:
+        pass
 
         # print(jrotavg)
 
@@ -462,7 +476,7 @@ def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
         for i in range(nbinsbf):
             ucgs[i] = u[i]*gravconst*munit/runit
         # print(ucgs)
-        qval = qconst*rhocgs/meanmolecular
+        qval = qconst*rhocgs/meanmolecularavg
         # print(qval)
         rval = -ucgs*rhocgs/arad
         # print(rval)
@@ -525,6 +539,7 @@ def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
             # jrotavg[index] = jrotavgz[index]
             tavg[index] = tavg[index] / amavg[index]
             # pavg[index] = pavg[index] / amavg[index]
+            meanmolecularavg = meanmolecular[index] / amavg[index]
 
             # apressure = uiavg[index] * rhoavg[index] * (GAM - 1)
 
@@ -538,28 +553,57 @@ def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
             ne20avg[index] /= amavg[index]
             mg24avg[index] /= amavg[index]
 
-            # writes all values to bestfit.sph. If there is a NaN value
+            # writes all values to bestfit?.sph. If there is a NaN value
             # anywhere in the code, all values for that bin will be skipped
-            if (not np.isnan(ammrhoavg[index] * amasstot * munit) or not np.isnan(ravg[index] *\
-                runit) or not np.isnan(pavg[index] * gravconst * (munit / runit ** 2) ** 2) or not\
-                np.isnan(rhoavg[index] * munit / runit ** 3) or not np.isnan(uiavg[index] * \
-                gravconst * munit / runit) or not np.isnan(np.linalg.norm(jrotavg[index]) * \
-                runit**2 / (np.sqrt(runit**3/(gravconst * munit))))) and \
-                (pavg[index] != 0 or uiavg[index] != 0 or tavg[index] != 0):
-                f.write('{:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e}\n'.format(
+#            if (not np.isnan(ammrhoavg[index] * amasstot * munit) or not np.isnan(ravg[index] *\
+#                runit) or not np.isnan(pavg[index] * gravconst * (munit / runit ** 2) ** 2) or not\
+#                np.isnan(rhoavg[index] * munit / runit ** 3) or not np.isnan(uiavg[index] * \
+#                gravconst * munit / runit) or not np.isnan(np.linalg.norm(jrotavg[index]) * \
+#                runit**2 / (np.sqrt(runit**3/(gravconst * munit))))) or not np.isnan(jrotavg[index])\
+#                or not np.isnan(h1avg[index]) or not np.isnan(he3avg[index]) or not np.isnan(he4avg[index])\
+#                or not np.isnan(c12avg[index]) or not np.isnan(n14avg[index]) or not np.isnan(o16avg[index])\
+#                or not np.isnan(ne20avg[index]) or not np.isnan(mg24avg[index]): #and \
+#                (pavg[index] != 0 or uiavg[index] != 0 or tavg[index] != 0):
+#                f.write('{:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e}\n'.format(
+#                ammrhoavg[index] * amasstot * munit,
+#                ravg[index] * runit,
+#                # apressure * gravconst * (munit / runit ** 2) ** 2,
+#                ptot[index],
+#                rhoavg[index] * munit / runit ** 3,
+#                uiavg[index] * gravconst * munit / runit,
+#                jrotavg[index] * runit**2 / tunit,
+                # jrotavg[index],
+#                temp[index],
+#                h1avg[index], he3avg[index], he4avg[index], c12avg[index], n14avg[index],
+#                o16avg[index], ne20avg[index], mg24avg[index]))
+#            else:
+#                pass
+
+
+            # Gather all values to check for NaN
+            values_to_check = [
                 ammrhoavg[index] * amasstot * munit,
                 ravg[index] * runit,
-                # apressure * gravconst * (munit / runit ** 2) ** 2,
                 ptot[index],
-                rhoavg[index] * munit / runit ** 3,
+                rhoavg[index] * munit / runit**3,
                 uiavg[index] * gravconst * munit / runit,
                 jrotavg[index] * runit**2 / tunit,
-                # jrotavg[index],
                 temp[index],
-                h1avg[index], he3avg[index], he4avg[index], c12avg[index], n14avg[index],
-                o16avg[index], ne20avg[index], mg24avg[index]))
-            else:
-                pass
+                h1avg[index],
+                he3avg[index],
+                he4avg[index],
+                c12avg[index],
+                n14avg[index],
+                o16avg[index],
+                ne20avg[index],
+                mg24avg[index]
+            ]
+
+            # Skip the line if any value is NaN
+            if not np.any(np.isnan(values_to_check)):
+                f.write('{:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e} {:.9e}\n'.format(
+                        *values_to_check))
+
 
             if index != 0:
                 if uiavg[index]/rhoavg[index]**(GAM-1) < uiavg[index - 1]/rhoavg[index]**(GAM-1) \
@@ -603,8 +647,11 @@ def bestfit(data, comp_data, neos,sph_input,jrot,temp,pgas,starnum=1):
         f.write(f'Particles for inner 50% of mass:   {half_mass_array.shape[0]}\n')
         f.write(f'Star 1 Particles:                  {star1}\n')
         f.write(f'Star 2 Particles:                  {star2}\n')
-        f.write(f'Star 1 Fractional Mass:            {star1_m/amasstot}\n')
-        f.write(f'Star 2 Fractional Mass:            {star2_m/amasstot}\n')
+        try:
+            f.write(f'Star 1 Fractional Mass:            {star1_m/amasstot}\n')
+            f.write(f'Star 2 Fractional Mass:            {star2_m/amasstot}\n')
+        except UnboundLocalError:
+            pass
         f.write(f'Total Angular Momentum:            {L_tot}\n')
         # f.write(f'Total Specific Angular Momentum:   {L_tot/(np.sum(am)*munit):e}\n')
         f.write(f'Total Specific Angular Momentum:   {j_tot_magn * runit**2 / tunit:e}\n')
