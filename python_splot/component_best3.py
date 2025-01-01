@@ -86,8 +86,13 @@ def compbest3(nout,data,icomp,write=True,internal_energy_fraction=0.):
             ncomp4 += 1
 
     # Determine the corresponding parent star numbers
-    number1 = -1 if irhomax1 == -1 else (1 if irhomax1 < n1 else 2)
-    number2 = -1 if irhomax2 == -1 else (1 if irhomax2 < n1 else 2)
+    try:
+        number1 = -1 if irhomax1 == -1 else (1 if irhomax1 < n1 else 2)
+        number2 = -1 if irhomax2 == -1 else (1 if irhomax2 < n1 else 2)
+    except:
+        number1 = 1
+        number2 = 0
+
 
     # Print the irhomax values along with their corresponding numbers
     print("irhomaxes =", irhomax1, irhomax2, irhomax3, irhomax4)
