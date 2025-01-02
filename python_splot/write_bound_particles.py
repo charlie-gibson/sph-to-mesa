@@ -50,6 +50,7 @@ def write_bound_particles(nnit, header_data, bound_data, starnum):
 }
 
     new_ntot = len(data['x'])
+    print('NEW NTOT:',new_ntot)
 
     # overwrites ntot with the new ntot
     header_data[0]=new_ntot
@@ -77,7 +78,7 @@ def write_bound_particles(nnit, header_data, bound_data, starnum):
         ('cc', np.int32), ('divv', np.float64) #,
         #('aa', np.float64), ('bb', np.float64), ('dd', np.float64),
 #        ('junk', np.float64)
-    ], align=True)
+    ], align=False)
 
     # debug statement
 #    print([type(value) for value in header_data])

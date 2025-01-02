@@ -1,4 +1,4 @@
-#!/jet/home/cgibson2/run_splot/bin/python3
+#!/usr/local/bin/python3
 
 """Hans Vanderzyden Python3 Splot File for Analysis of StarSmasher (Main)
 The purpose of this file is to be a main file that calls in other subroutines (in /data/user/splot folder created by user) needed to analyze the output data from StarSmasher.
@@ -22,7 +22,7 @@ import glob
 import re
 import numpy as np
 user = str(getpass.getuser()) # gets the username of the user (example: vanderzyden01) to use in line 4 (for the splot folder location)
-sys.path.insert(0, f'/jet/home/{user}/sph-to-mesa/python_splot/') # this location may change for the future, if so this line must be edited accordingly
+sys.path.insert(0, f'/home/{user}/sph-to-mesa/python_splot/') # this location may change for the future, if so this line must be edited accordingly
 # these files must all be imported after the above two lines
 from ascii_output import ascii_output
 from bestfit import bestfit
@@ -47,7 +47,7 @@ from write_mesa_inlist import write_mesa_inlist
 from write_bound_particles import write_bound_particles
 from write_bound_composition import write_bound_composition
 
-path=f'/jet/home/{user}/sph-to-mesa/python_splot/'
+path=f'/home/{user}/sph-to-mesa/python_splot/'
 
 def option0(nnit_input, readit_data, header_data):
 
@@ -291,9 +291,9 @@ def option13(nnit_input, header_data, readit_data, component_val=-1):
         component_val=int(input("Which star are you analyzing? "))
     component_data = component_reader(nnit_input)
     composition_data = compsph_readit()
-    bound_data, bound_composition = bound_particle_data(readit_data,
-                                                        component_data,
-                                                        composition_data,
+    bound_data, bound_composition = bound_particle_data(data=readit_data,
+                                                        component=component_data,
+                                                        composition=composition_data,
                                                         component_val=component_val,
                                                         all_data=False)
     write_bound_particles(nnit_input, header_data, bound_data, component_val)
@@ -382,11 +382,13 @@ def main():
             print(f"--------------------------Output file {nnit_input}--------------------------")
            
             if option !=5:
-                if option == 0 or option == 13:
+                if option == 0:
                     readit_data, header_data = readit_collision(nnit_input, 4, True) # iform is always 4 (usually inputted from a separate routine, but I have it set to 4)
+                elif option == 13:
+                    readit_data, header_data = readit_collision(nnit_input, 3, True)
                 else:
                     readit_data = readit_collision(nnit_input, 4)
-            
+
             if option == 0:
                 option0(nnit_input, readit_data, header_data)
 
