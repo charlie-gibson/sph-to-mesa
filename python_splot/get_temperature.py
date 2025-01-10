@@ -51,7 +51,7 @@ def get_temperature(q, r):
     b2 = aa**0.5
     c2 = 0.5 * b/b2 + yy
 
-    x3 = -2 * c2 / (b2 + (b2**2 - 4)**(0.5))
+    x3 = -2 * c2 / (b2 + (b2**2 - 4 * c2)**(0.5))
 
     if piece1 < 0:
         print(f"piece1 < 0", k, r, piece1, piece2)
