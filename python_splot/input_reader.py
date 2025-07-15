@@ -2,7 +2,7 @@ def sph_input_reader():
     # Create an empty dictionary to store the data
     sph_data = {}
     
-    # Read in file
+    # Read in sph.input
     with open('sph.input', 'r') as f:
         n = 0
         
@@ -13,19 +13,24 @@ def sph_input_reader():
 
                 if len(value_part) >= 2:
                     variable_name = value_part[0].strip().lower()
+                    # all variables beginning with n are integers
                     if variable_name[0]=='n' or variable_name[0]=='N':
                         value=int(value_part[1].strip().replace(',',''))
                     else:
                         try:
-                            value = float(value_part[1].strip().replace(',',''))
+                            # removes , from sph.input data
+                            value = \
+                                float(value_part[1].strip().replace(',',''))
                         except:
-                            value=value_part[1].strip().replace(',','').strip("'").strip('"')
-                    
-                    #descriptor = None
-                    #if len(parts) == 2:
-                    #    descriptor = parts[1].strip()
-                    
-                    #sph_data[variable_name] = {'value': value, 'descriptor': descriptor}
+                            # ensures strings don't have two sets of
+                            # quotes
+                            value= \
+                                value_part[1].strip().replace(',','')\
+                                    .strip("'").strip('"')
+
+                    # creates a key for the sph.input value
+                    # and sets that value in the dictionary
+                    # to the value assigned in sph.input
                     sph_data[variable_name] = value
                     n += 1
                 else:
@@ -33,8 +38,9 @@ def sph_input_reader():
             except Exception as e:
                 print(f"Error processing line {n}: {e}")
 
-        for keys,vals in zip(sph_data.keys(),sph_data.values()):
+        # prints sph.input data
+        for keys,vals in zip(sph_data.keys(), sph_data.values()):
             print(f'{keys:15} {vals}')
-    
+
     return sph_data
 

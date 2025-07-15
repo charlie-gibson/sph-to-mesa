@@ -6,6 +6,10 @@ in the eccentricity equation. It also finds the relative velocity
 at infinity. These can be used to find the semi-major axis and other
 quantities.
 
+Uses equations from
+Classical Dynamics of Particles and Systems (5th Edition)
+Thornton and Marion
+
 Charles Gibson
 Allegheny College
 Department of Physics
@@ -22,7 +26,7 @@ runit = 6.9599e10 # cm
 munit = 1.9891e33 # g
 tunit = np.sqrt(runit**3/(G*munit))
 
-# function for eccentricity calcs
+# function for eccentricity calculations
 # needs the data from the output file and the number of the file
 def eccentricity(readit_data, component_file_number):
     # collects the important data from readit
@@ -96,19 +100,20 @@ def eccentricity(readit_data, component_file_number):
 
     # calculates the relative velocity and position between the center
     # of the two stars
-    r_rel = np.sqrt((x1-x2)**2+(y1-y2)**2+(z1-z2)**2)
-    v_rel = np.sqrt((vx1-vx2)**2+(vy1-vy2)**2+(vz1-vz2)**2)
-    print('Relative r: ',r_rel/runit)
-    print('Relative v: ',v_rel/1e5)
+    r_rel = np.sqrt((x1 - x2)**2 + (y1 - y2)**2 + (z1 - z2)**2)
+    v_rel = np.sqrt((vx1 - vx2)**2 + (vy1 - vy2)**2 + (vz1 - vz2)**2)
+    print('Relative r: ', r_rel / runit)
+    print('Relative v: ', v_rel / 1e5)
 
     # calculates the important quantities for the eccentricity equation
-    mu = m1*m2/(m1+m2)
-    k = G*m1*m2
-    # l2 = mu**2*r_rel**2*v_rel**2
-    l2 = mu**2*np.linalg.norm(np.cross([(x1-x2), (y1-y2), (z1-z2)],[(vx1-vx2), (vy1-vy2), (vz1-vz2)]))**2
-    k_energy = 1/2*mu*v_rel**2
-    u_energy = -k/r_rel
-    # energy = 1/2*mu*v_rel**2-k/r_rel
+    mu = m1 * m2 / (m1 + m2)
+    k = G * m1 * m2
+    l2 = mu**2 * np.linalg.norm(
+        np.cross([(x1 - x2), (y1 - y2), (z1 - z2)],
+                 [(vx1 - vx2), (vy1 - vy2), (vz1 - vz2)]
+                ))**2
+    k_energy = 1 / 2 * mu * v_rel**2
+    u_energy = -k / r_rel
     energy = k_energy + u_energy
 
     print('Kinetic Energy: ', k_energy)
@@ -120,9 +125,9 @@ def eccentricity(readit_data, component_file_number):
     print('k: ',k)
 
     # calculates eccentricity and relative velocity at infinity
-    e = np.sqrt(1+2*energy*l2/(mu*k**2))
-    v_inf_rel = np.sqrt(2*energy/mu) / 1e5
-    v_inf_rel2 = 2*energy/mu / 1e10
+    e = np.sqrt(1 + 2 * energy * l2 / ( mu * k**2))
+    v_inf_rel = np.sqrt(2 * energy/mu) / 1e5
+    v_inf_rel2 = 2 * energy / mu / 1e10
     print(f'Eccentricity: {e}')
     print(f'v_rel_infty: {v_inf_rel}')
 
@@ -130,5 +135,4 @@ def eccentricity(readit_data, component_file_number):
     file = 'eccentricity.out'
     with open(file,'w') as f:
         f.write(f'{e}\n')
-#        f.write(f'{v_inf_rel2}\n')
         f.write(f'{v_inf_rel}\n')

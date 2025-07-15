@@ -26,7 +26,6 @@ def comp_spline(q, elements, spline = True):
 
     import numpy as np
     from scipy.interpolate import CubicSpline, interp1d
-#    import matplotlib.pyplot as plt
 
     h1 = elements[0]
     he3 = elements[1]
@@ -48,7 +47,8 @@ def comp_spline(q, elements, spline = True):
         ne20.reverse()
         mg24.reverse()
 
-        # creates a cubic spline of each element vs the mass fraction to interpolate data
+        # creates a cubic spline of each element
+        # vs the mass fraction to interpolate data
         h1fit = CubicSpline(q, h1)
         he3fit = CubicSpline(q, he3)
         he4fit = CubicSpline(q, he4)
@@ -111,17 +111,5 @@ def comp_spline(q, elements, spline = True):
         'ne20':ne20fit,
         'mg24':mg24fit
     }
-
-    # plots data
-    #x = np.linspace(np.min(q), np.max(q), len(q))
-
-    #f,ax=plt.subplots()
-
-    #ax.plot(x,h1fit(x),color='blue',label='H1 fit')
-    #ax.plot(x,he4fit(x),color='mediumpurple',label='He4 fit')
-    #ax.set_xlabel(r'$xq$')
-    #ax.set_ylabel(r'fraction')
-    #plt.title("Composition Bestfit", fontsize=9)
-    #plt.show()
 
     return comp_splines

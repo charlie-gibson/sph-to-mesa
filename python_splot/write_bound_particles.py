@@ -4,8 +4,9 @@ def write_bound_particles(nnit, header_data, bound_data, starnum):
     nnit = input number
     header_data = header data from out****.sph
     bound_data = SPH data bound to a specific component
-    starnum = the component number that we want the SPH particles to be bound to
-    
+    starnum = the component number that we want the SPH
+    particles to be bound to
+
     This code uses just the particle data bound to a given
     component (star 1, star 2, etc.) and writes a binary file
     that can be used to intialize a new sph simulation
@@ -60,35 +61,39 @@ def write_bound_particles(nnit, header_data, bound_data, starnum):
 
     # specifies how each value is stored in the header data
     header_dtype = np.dtype([
-        ('ntot', np.int32), ('nnopt', np.int32), ('hco', np.float64), ('hfloor', np.float64),
-        ('sep0', np.float64), ('tf', np.float64), ('dtout', np.float64), ('nout', np.int32),
-        ('nit', np.int32), ('t', np.float64), ('nav', np.int32), ('alpha', np.float64),
-        ('beta', np.float64), ('tjumpahead', np.float64), ('ngr', np.int32), ('nrelax', np.int32),
-        ('trelax', np.float64), ('dt', np.float64), ('omega2', np.float64), ('ncooling', np.int32),
-        ('erad', np.float64), ('ndisplace', np.int32), ('displacex', np.float64), ('displacey', np.float64),
-        ('displacez', np.float64) #, ('junk', np.float64)
+        ('ntot', np.int32), ('nnopt', np.int32),
+        ('hco', np.float64), ('hfloor', np.float64),
+        ('sep0', np.float64), ('tf', np.float64),
+        ('dtout', np.float64), ('nout', np.int32),
+        ('nit', np.int32), ('t', np.float64),
+        ('nav', np.int32), ('alpha', np.float64),
+        ('beta', np.float64), ('tjumpahead', np.float64),
+        ('ngr', np.int32), ('nrelax', np.int32),
+        ('trelax', np.float64), ('dt', np.float64),
+        ('omega2', np.float64), ('ncooling', np.int32),
+        ('erad', np.float64), ('ndisplace', np.int32),
+        ('displacex', np.float64), ('displacey', np.float64),
+        ('displacez', np.float64)
     ])
 
     # specifies how each value is stored in the particle data
     particle_dtype = np.dtype([
-        ('x', np.float64), ('y', np.float64), ('z', np.float64), ('am', np.float64),
-        ('hp', np.float64), ('rho', np.float64), ('vx', np.float64), ('vy', np.float64),
-        ('vz', np.float64), ('vxdot', np.float64), ('vydot', np.float64), ('vzdot', np.float64),
-        ('u', np.float64), ('udot', np.float64), ('grpot', np.float64), ('meanmolecular', np.float64),
-        ('cc', np.int32), ('divv', np.float64) #,
-        #('aa', np.float64), ('bb', np.float64), ('dd', np.float64),
-#        ('junk', np.float64)
+        ('x', np.float64), ('y', np.float64),
+        ('z', np.float64), ('am', np.float64),
+        ('hp', np.float64), ('rho', np.float64),
+        ('vx', np.float64), ('vy', np.float64),
+        ('vz', np.float64), ('vxdot', np.float64),
+        ('vydot', np.float64), ('vzdot', np.float64),
+        ('u', np.float64), ('udot', np.float64),
+        ('grpot', np.float64), ('meanmolecular', np.float64),
+        ('cc', np.int32), ('divv', np.float64)
     ], align=False)
-
-    # debug statement
-#    print([type(value) for value in header_data])
 
     body_data = list(zip(
         data['x'], data['y'], data['z'], data['am'], data['hp'], data['rho'],
-        data['vx'], data['vy'], data['vz'], data['vxdot'], data['vydot'], data['vzdot'],
-        data['u'], data['udot'], data['grpot'], data['meanmolecular'], data['cc'], data['divv'] #,
-        #data['aa'], data['bb'], data['dd'],
-#        data['junk']
+        data['vx'], data['vy'], data['vz'], data['vxdot'], data['vydot'],
+        data['vzdot'], data['u'], data['udot'], data['grpot'],
+        data['meanmolecular'], data['cc'], data['divv']
     ))
 
     # Prepare header and particle data as byte arrays
@@ -97,14 +102,12 @@ def write_bound_particles(nnit, header_data, bound_data, starnum):
     for key, values in data.items():
         particle_array[key] = values
 
-#    print("Particle data:", particle_array[:5])
-#    raise SystemExit
-
     # Write the data to a binary file
     with open(f"bound{nnit:04d}_{starnum}.sph", "wb") as f:
 
-        # Fortran innately writes marker data at the beginning and end of each line
-        # Python does not, so we need to manually add this data instead
+        # Fortran innately writes marker data at the
+        # beginning and end of each line Python does not,
+        # so we need to manually add this data instead
 
         # gets the number of bytes of the header data,
         # particle data, and the new ntot
@@ -120,13 +123,13 @@ def write_bound_particles(nnit, header_data, bound_data, starnum):
     
         # Write particle records
         for i in range(len(particle_array)):
-            particle_bytes_i = particle_array[i].tobytes()# struct.pack(particle_dtype[i], *particle_array[i])
-            f.write(struct.pack('i', len(particle_bytes_i)))  # Marker (size)
+            particle_bytes_i = particle_array[i].tobytes()
+            f.write(struct.pack('i', len(particle_bytes_i))) # Marker (size)
             f.write(particle_bytes_i)
-            f.write(struct.pack('i', len(particle_bytes_i)))  # Marker (size)
+            f.write(struct.pack('i', len(particle_bytes_i))) # Marker (size)
 
         # Write footer
         footer_bytes = struct.pack('i', new_ntot)
-        f.write(struct.pack('i', len(footer_bytes)))  # Marker (size)
+        f.write(struct.pack('i', len(footer_bytes))) # Marker (size)
         f.write(footer_bytes)
-        f.write(struct.pack('i', len(footer_bytes)))  # Marker (size)
+        f.write(struct.pack('i', len(footer_bytes))) # Marker (size)

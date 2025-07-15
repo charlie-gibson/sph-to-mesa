@@ -9,7 +9,9 @@ against each other very nicely.
 
 Jacky's email: jtran9148@gmail.com
 Jacky's GitHub: https://github.com/IndigenousAlien/Hypermongo
-Jacky's Senior Comp Paper: Modeling Tidal Disruption Encounters and Analysis with a Data Visualization Tool - Hypermongo
+Jacky's Senior Comp Paper:
+    Modeling Tidal Disruption Encounters and Analysis
+    with a Data Visualization Tool - Hypermongo
      The paper can be found on https://dspace.allegheny.edu/
      (It may need to be requested in order to obtain access)
 
@@ -51,8 +53,12 @@ def header_output(interp_data,star_num=1,opt=0):
         end_string='_hse.out'
 
     with open(f'sphToMesa{star_num}'+end_string,'w') as f:
-        f.write('xq     q     r     rho     P     A     T     jrot     H1     He3     He4     C12     N14     O16     Ne20     Mg24\n')
+        f.write('xq     q     r     rho     P     A     T     jrot     \
+H1     He3     He4     C12     N14     O16     Ne20     Mg24\n')
 
         for i in range(len(xq)):
-            f.write(f'{xq[i]}  {q[i]}  {r[i]}  {rho[i]}  {P[i]}  {A[i]}  {T[i]}  {jrot[i]}  {H1[i]}  {He3[i]}  {He4[i]}  {C12[i]}  {N14[i]}  {O16[i]}  {Ne20[i]}  {Mg24[i]}\n')
+            f.write(
+f'{xq[i]}  {q[i]}  {r[i]}  {rho[i]}  {P[i]}  {A[i]}\
+  {T[i]}  {jrot[i]}  {H1[i]}  {He3[i]}  {He4[i]}  {C12[i]}\
+  {N14[i]}  {O16[i]}  {Ne20[i]}  {Mg24[i]}\n')
 

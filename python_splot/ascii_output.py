@@ -69,18 +69,30 @@ def ascii_output(nnit, readit_data, header_data):
     divv = readit_data['divv']
 
     with open(FNAME,'w') as f:
-        f.write('      ntot     nnopt                      hco                   hfloor                     sep0\
-                       tf                    dtout      nout       nit                        t       nav                    alpha\
-                     beta               tjumpahead       ngr    nrelax                   trelax                       dt\
-                   omega2  ncooling                     erad      ndisplace                displacex                displacey\
-                displacez\n')
-        f.write(f'{ntot:10}{nnopt:10}{hco:25}{hfloor:25}{sep0:25}{tf:25}{dtout:25}{nout:10}{nit:10}{t:25}{nav:10}{alpha:25}{beta:25}{tjumpahead:25}{ngr:10}\
-{nrelax:10}{trelax:25}{dt:25}{omega2:25}{ncooling:10}{erad:25}{ndisplace:15}{displacex:25}{displacey:25}{displacez:25}\n')
-        f.write('                        x                        y                        z                       am\
-                       hp                      rho                       vx                       vy                       vz\
-                    vxdot                    vydot                    vzdot                        u                     udot\
-                    grpot     meanmolecular[grams]        cc                     divv\n')
+        f.write(
+'      ntot     nnopt                      hco                   \
+hfloor                     sep0                       tf\
+                    dtout      nout       nit                        \
+t       nav                    alpha                     beta\
+               tjumpahead       ngr    nrelax                   trelax\
+                       dt                   omega2  ncooling\
+                     erad      ndisplace                displacex\
+                displacey                displacez\n')
+        f.write(
+f'{ntot:10}{nnopt:10}{hco:25}{hfloor:25}{sep0:25}{tf:25}{dtout:25}{nout:10}\
+{nit:10}{t:25}{nav:10}{alpha:25}{beta:25}{tjumpahead:25}{ngr:10}{nrelax:10}\
+{trelax:25}{dt:25}{omega2:25}{ncooling:10}{erad:25}{ndisplace:15}\
+{displacex:25}{displacey:25}{displacez:25}\n')
+        f.write(
+'                        x                        y                        z\
+                       am                       hp                      rho\
+                       vx                       vy                       vz\
+                    vxdot                    vydot                    vzdot\
+                        u                     udot                    grpot\
+     meanmolecular[grams]        cc                     divv\n')
         for i in range(ntot):
-            f.write(f'{x[i]:25}{y[i]:25}{ z[i]:25}{am[i]:25}{hp[i]:25}{rho[i]:25}{vx[i]:25}{vy[i]:25}{vz[i]:25}{vxdot[i]:25}\
-{vydot[i]:25}{vzdot[i]:25}{u[i]:25}{udot[i]:25}{grpot[i]:25}{meanmolecular[i]:25}{cc[i]:10}{divv[i]:25}\n')
+            f.write(
+f'{x[i]:25}{y[i]:25}{ z[i]:25}{am[i]:25}{hp[i]:25}{rho[i]:25}{vx[i]:25}\
+{vy[i]:25}{vz[i]:25}{vxdot[i]:25}{vydot[i]:25}{vzdot[i]:25}{u[i]:25}\
+{udot[i]:25}{grpot[i]:25}{meanmolecular[i]:25}{cc[i]:10}{divv[i]:25}\n')
         f.write(f'{ntot:10}\n')

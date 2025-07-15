@@ -7,30 +7,34 @@ Allegheny College
 Department of Physics
 """
 
-def bound_particle_data(data, component, composition=0,jrot=0,temp=0,press=0,component_val=1,all_data=True):
+def bound_particle_data(
+        data, component, composition=0, jrot=0, temp=0,
+        press=0, component_val=1, all_data=True
+    ):
 
     import numpy as np
 
     if all_data:
 
-        # uses the lists in data (a dictionary) from readit.py to determine the variables for calculations
+        # uses the lists in data (a dictionary) from readit.py
+        # to determine the variables for calculations
         ntot = int(data['ntot']) # number of particles
-        x = data['x'] # x position
-        y = data['y'] # y position
-        z = data['z'] # z position
-        am = data['am'] # mass
-        hp = data['hp'] # smoothing length
-        rho = data['rho'] # density
-        vx = data['vx'] # x velocity
-        vy = data['vy'] # y velocity
-        vz = data['vz'] # z velocity
-        vxdot = data['vxdot'] # x acceleration
-        vydot = data['vydot'] # y acceleration
-        vzdot = data['vzdot'] # z acceleration
-        u = data['u'] # specific internal energy
-        udot = data['udot'] # d/dt[u]
-        grpot = data['grpot'] # gravitational potential
-        meanmolecular = data['meanmolecular'] # mean molecular weight
+        x = data['x']
+        y = data['y']
+        z = data['z']
+        am = data['am']
+        hp = data['hp']
+        rho = data['rho']
+        vx = data['vx']
+        vy = data['vy']
+        vz = data['vz']
+        vxdot = data['vxdot']
+        vydot = data['vydot']
+        vzdot = data['vzdot']
+        u = data['u']
+        udot = data['udot']
+        grpot = data['grpot']
+        meanmolecular = data['meanmolecular']
         cc = data['cc']
         divv = data['divv']
         # aa = data['aa']
@@ -52,15 +56,6 @@ def bound_particle_data(data, component, composition=0,jrot=0,temp=0,press=0,com
         o16 = composition[5]
         ne20 = composition[6]
         mg24 = composition[7]
-
-        #try:
-        #    junk=jrot[ntot]
-        #except:
-        #    jrot=np.zeros(ntot)
-        #    press=np.zeros(ntot)
-        #    temp=np.zeros(ntot)
-
-        # print('NTOT:',ntot)
 
         boundx = []
         boundy = []
@@ -161,15 +156,6 @@ def bound_particle_data(data, component, composition=0,jrot=0,temp=0,press=0,com
         bound_temp=np.array(bound_temp)
         bound_pressure=np.array(bound_pressure)
 
-        # h1 = np.array(h1)
-        # he3 = np.array(he3)
-        # he4 = np.array(he4)
-        # c12 = np.array(c12)
-        # n14 = np.array(n14)
-        # o16 = np.array(o16)
-        # ne20 = np.array(ne20)
-        # mg24 = np.array(mg24)
-        
         try:
             bound_data = {
                 'ntot':len(boundx),
@@ -225,18 +211,17 @@ def bound_particle_data(data, component, composition=0,jrot=0,temp=0,press=0,com
                 # 'aa':boundaa,
                 # 'bb':boundbb,
                 # 'dd':bounddd
-            # 'cc1val':cc1val,
-            # 'cc2val':cc2val,
-            # 'n1':n1,
-            # 'n2':n2
             }        
 
         print("Number of bound particles to the star =", len(boundrho))
-        # print(boundrho)
 
-        bound_composition = [boundh1, boundhe3, boundhe4, boundc12, boundn14, boundo16, boundne20, boundmg24]
+        bound_composition = [
+            boundh1, boundhe3, boundhe4, boundc12,
+            boundn14, boundo16, boundne20, boundmg24
+        ]
 
-        return bound_data,bound_composition,bound_jrot,bound_temp,bound_pressure
+        return (bound_data, bound_composition,
+                bound_jrot, bound_temp, bound_pressure)
 
     elif not all_data:
 
@@ -249,24 +234,23 @@ def bound_particle_data(data, component, composition=0,jrot=0,temp=0,press=0,com
             if comp_val == component_val:
                 inds.append(i)
 
-
         bound_data = {
-            'x':np.array(data['x'])[inds], # x position
-            'y':np.array(data['y'])[inds], # y position
-            'z':np.array(data['z'])[inds], # z position
-            'am':np.array(data['am'])[inds], # mass
-            'hp':np.array(data['hp'])[inds], # smoothing length
-            'rho':np.array(data['rho'])[inds], # density
-            'vx':np.array(data['vx'])[inds], # x velocity
-            'vy':np.array(data['vy'])[inds], # y velocity
-            'vz':np.array(data['vz'])[inds], # z velocity
-            'vxdot':np.array(data['vxdot'])[inds], # x acceleration
-            'vydot':np.array(data['vydot'])[inds], # y acceleration
-            'vzdot':np.array(data['vzdot'])[inds], # z acceleration
-            'u':np.array(data['u'])[inds], # specific internal energy
-            'udot':np.array(data['udot'])[inds], # d/dt[u]
-            'grpot':np.array(data['grpot'])[inds], # gravitational potential
-            'meanmolecular':np.array(data['meanmolecular'])[inds], # mean molecular weight
+            'x':np.array(data['x'])[inds],
+            'y':np.array(data['y'])[inds],
+            'z':np.array(data['z'])[inds],
+            'am':np.array(data['am'])[inds],
+            'hp':np.array(data['hp'])[inds],
+            'rho':np.array(data['rho'])[inds],
+            'vx':np.array(data['vx'])[inds],
+            'vy':np.array(data['vy'])[inds],
+            'vz':np.array(data['vz'])[inds],
+            'vxdot':np.array(data['vxdot'])[inds],
+            'vydot':np.array(data['vydot'])[inds],
+            'vzdot':np.array(data['vzdot'])[inds],
+            'u':np.array(data['u'])[inds],
+            'udot':np.array(data['udot'])[inds],
+            'grpot':np.array(data['grpot'])[inds],
+            'meanmolecular':np.array(data['meanmolecular'])[inds],
             'cc':np.array(data['cc'])[inds],
             'divv':np.array(data['divv'])[inds]
         }
@@ -279,25 +263,6 @@ def bound_particle_data(data, component, composition=0,jrot=0,temp=0,press=0,com
         o16 = composition[5]
         ne20 = composition[6]
         mg24 = composition[7]
-
-#        boundx = []
-#        boundy = []
-#        boundz = []
-#        boundam = []
-#        boundhp = []
-#        boundrho = []
-#        boundvx = []
-#        boundvy = []
-#        boundvz = []
-#        boundvxdot = []
-#        boundvydot = []
-#        boundvzdot = []
-#        boundu = []
-#        boundudot = []
-#        boundgrpot = []
-#        boundmeanmolecular = []
-#        boundcc = []
-#        bounddivv = []
 
         boundh1 = []
         boundhe3 = []
@@ -312,25 +277,6 @@ def bound_particle_data(data, component, composition=0,jrot=0,temp=0,press=0,com
 
         for value in component:
             if value == component_val:
-#                boundx.append(x[n])
-#                boundy.append(y[n])
-#                boundz.append(z[n])
-#                boundam.append(am[n])
-#                boundhp.append(hp[n])
-#                boundrho.append(rho[n])
-#                boundvx.append(vx[n])
-#                boundvy.append(vy[n])
-#                boundvz.append(vz[n])
-#                boundvxdot.append(vxdot[n])
-#                boundvydot.append(vydot[n])
-#                boundvzdot.append(vzdot[n])
-#                boundu.append(u[n])
-#                boundudot.append(udot[n])
-#                boundgrpot.append(grpot[n])
-#                boundmeanmolecular.append(meanmolecular[n])
-#                boundcc.append(cc[n])
-#                bounddivv.append(divv[n])
-
                 boundh1.append(h1[n])
                 boundhe3.append(he3[n])
                 boundhe4.append(he4[n])
@@ -345,46 +291,9 @@ def bound_particle_data(data, component, composition=0,jrot=0,temp=0,press=0,com
             print('NO PARTICLES: STOPPING CODE')
             raise SystemExit
 
-#        boundx = np.array(boundx)
-#        boundy = np.array(boundy)
-#        boundz = np.array(boundz)
-#        boundam = np.array(boundam)
-#        boundhp = np.array(boundhp)
-#        boundrho = np.array(boundrho)
-#        boundvx = np.array(boundvx)
-#        boundvy = np.array(boundvy)
-#        boundvz = np.array(boundvz)
-#        boundvxdot = np.array(boundvxdot)
-#        boundvydot = np.array(boundvydot)
-#        boundvzdot = np.array(boundvzdot)
-#        boundu = np.array(boundu)
-#        boundudot = np.array(boundudot)
-#        boundgrpot = np.array(boundgrpot)
-#        boundmeanmolecular = np.array(boundmeanmolecular)
-#        boundcc = np.array(boundcc)
-#        bounddivv = np.array(bounddivv)
-
-#        bound_data = {
-#            'x':boundx,
-#            'y':boundy,
-#            'z':boundz,
-#            'am':boundam,
-#            'hp':boundhp,
-#            'rho':boundrho,
-#            'vx':boundvx,
-#            'vy':boundvy,
-#            'vz':boundvz,
-#            'vxdot':boundvxdot,
-#            'vydot':boundvydot,
-#            'vzdot':boundvzdot,
-#            'u':boundu,
-#            'udot':boundudot,
-#            'grpot':boundgrpot,
-#            'meanmolecular':boundmeanmolecular,
-#            'cc':boundcc,
-#            'divv':bounddivv,
-#        }
-
-        bound_composition = [boundh1, boundhe3, boundhe4, boundc12, boundn14, boundo16, boundne20, boundmg24]
+        bound_composition = [
+            boundh1, boundhe3, boundhe4, boundc12,
+            boundn14, boundo16, boundne20, boundmg24
+        ]
 
         return bound_data, bound_composition

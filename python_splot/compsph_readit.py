@@ -1,9 +1,10 @@
 """
-This code reads in all the data from the sph.composition file and saves it to
-a dictionary to be read in by bestfit.py
+This code reads in all the data from the sph.composition file
+and saves it to a dictionary to be read in by bestfit.py
 
-By default, there are 8 values of composition on each line. You will need to
-edit the function to alter the proper composition values
+By default, there are 8 values of composition on each line.
+You will need to edit the function to alter the
+proper composition values
 
 Charles Gibson
 Allegheny College
@@ -25,7 +26,8 @@ def compsph_readit():
     # reads sph.composition
     with open("sph.composition", "r") as f:
 
-        # reads in each line, appending the correct composition data to the corresponding list
+        # reads in each line, appending the correct composition data
+        # to the corresponding list
         for line in f:
             values = line.split()
             h1.append(float(values[0]))

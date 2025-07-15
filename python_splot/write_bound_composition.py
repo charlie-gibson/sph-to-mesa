@@ -28,12 +28,9 @@ def write_bound_composition(nnit, bound_composition, starnum):
 
     with open(f'sph.{nnit:04d}_bound_composition_{starnum}','w') as f:
 
-        for h1val, he3val, he4val, c12val, n14val, o16val, ne20val, mg24val in zip(h1,
-                                                                                he3,
-                                                                                he4,
-                                                                                c12,
-                                                                                n14,
-                                                                                o16,
-                                                                                ne20,
-                                                                                mg24):
-            f.write(f'{h1val}     {he3val}     {he4val}     {c12val}     {n14val}     {o16val}     {ne20val}     {mg24val}\n')
+        for (h1val, he3val, he4val, c12val,
+             n14val, o16val, ne20val, mg24val) in zip(
+            h1, he3, he4, c12, n14, o16, ne20, mg24):
+            f.write(
+f'{h1val}     {he3val}     {he4val}     {c12val}   \
+  {n14val}     {o16val}     {ne20val}     {mg24val}\n')
