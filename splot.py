@@ -1,14 +1,38 @@
-#!/usr/local/bin/python3
+#!/jet/home/cgibson2/run_splot/bin/python3
 
-"""Hans Vanderzyden Python3 Splot File for Analysis of StarSmasher (Main)
-The purpose of this file is to be a main file that calls in other subroutines (in /data/user/splot folder created by user) needed to analyze the output data from StarSmasher.
-Currently only reads in the data (additional functionality is in the process)
+"""
+Hans Vanderzyden
+Python3 Splot File for Analysis of StarSmasher (Main)
+The purpose of this file is to be a main file that calls in other
+subroutines(in /data/user/splot folder created by user)
+needed to analyze the output data from StarSmasher.
+Currently only reads in the data
+(additional functionality is in the process)
 
----------------------------------------------------------------------------------------------------
-Updated to read in data and do data analysis to write MESA friendly files
-for future MESA evolution from an SPH simulation. There is an option to run this
-post processing routine (1) and an option to determine the composition of each
-particle (2) which can be used on a relaxed star for future evaluation of other interactions
+-----------------------------------------------------------------------
+This is the main hub for StarSmasher analysis
+
+Updated to allow additional functionality from other data analysis
+codes. Options for analysis include:
+0  - Writes an output file in ASCII format
+1  - Reconstructs a stellar model, ignoring smoothing of composition
+     and angular momentum
+2  - Writes an sph.composition file based on a relaxation
+3  - Reconstructs a stellar model, incorporating smoothing of
+     composition and angular momentum
+4  - Evaluates the bound state of each particle
+5  - Rewrites MESA files with a given thermodynamic pair, especially
+     for the entropy?.dat file, using a pre-existing bestfit?.sph file
+6  - Generates a particle plot for relaxations, similar to pa in smx
+7  - Generates an energy plot by reading in the energy?.sph file
+8  - Forces a model to be in hydrostatic equilibrium
+9  - Calculates the orbital eccentricity and relative v_infty
+10 - Uses existing *.dat files and writes all MESA input files
+     including inlists for a MESA construction
+11 - Combines options 2, 4, 3, and 10 for a relaxation
+12 - Combines options 4, 3, and 10 for a collision
+13 - Writes a file with particle data consistent with how
+     StarSmasher writes data
 
 Charles Gibson
 Allegheny College
@@ -21,9 +45,12 @@ import os
 import glob
 import re
 import numpy as np
-user = str(getpass.getuser()) # gets the username of the user (example: vanderzyden01) to use in line 4 (for the splot folder location)
-sys.path.insert(0, f'/home/{user}/sph-to-mesa/python_splot/') # this location may change for the future, if so this line must be edited accordingly
-# these files must all be imported after the above two lines
+user = str(getpass.getuser()) # gets username of user
+# path where sph-to-mesa exists
+# sys.path.insert(0, f'/jet/home/{user}/sph-to-mesa/python_splot/')
+sys.path.insert(0, f'/ocean/projects/phy240067p/shared/collision1/sph-to-mesa_for_comp/python_splot')
+
+# these and all new files must be imported after the above two lines
 from ascii_output import ascii_output
 from bestfit import bestfit
 from readit_collision import readit_collision
@@ -47,14 +74,25 @@ from write_mesa_inlist import write_mesa_inlist
 from write_bound_particles import write_bound_particles
 from write_bound_composition import write_bound_composition
 
-path=f'/home/{user}/sph-to-mesa/python_splot/'
+# path where sph-to-mesa lives
+path='/ocean/projects/phy240067p/shared/collision1/sph-to-mesa_for_comp/python_splot'
 
 def option0(nnit_input, readit_data, header_data):
+
+    """
+    writes SPH data to ASCII format
+    """
 
     ascii_output(nnit_input, readit_data, header_data)
 
 def option1(readit_data, sph_input):
 
+    """
+    Reconstructs stellar model without smoothing any values
+    such as composition and angular momentum
+    """
+
+    # entropy pairs for entropy?.dat
     mode = input("Which type of input file would you like to feed to MESA?\n\
     Entropy    		                 [S]  \n\
     Density-Temperature			 [DT] \n\
@@ -63,30 +101,41 @@ def option1(readit_data, sph_input):
     Density-Pressure (Experimental)	 [DP] \n\
 : ")
 
+    # evaluates particle composition from sph.composition
     comp_data = compsph_readit()
 
+    # determines which equation of state to use
     try:
         neos = sph_input['neos']
     except:
         neos = 1
 
+    # writes bestfit?.sph and resolved, interpolated data
     bestfit(readit_data, comp_data, neos, sph_input)
     header_data=entropy_reader(mode,path)
     header_output(header_data)
 
-    pass
-
 def option2(readit_data, sph_input):
 
-    profile_num=sph_input['profilefile']
+    """
+    Writes an sph.composition file
+    """
+
+    profile_num = sph_input['profilefile']
     q, elements = composition_reader(profile_num)
     splines = comp_spline(q, elements, spline=False)
     composition_fit(readit_data, splines)
 
 def option3(nnit_input, readit_data, sph_input, mode=-1, component_val=-1):
 
+    """
+    Reconstructs the stellar model while smoothing composition
+    and angular momentum according to the Wendland C4 kernel
+    """
+
     if mode == -1:
-        mode = input("Which type of input file would you like to feed to MESA?\n\
+        mode = input(\
+"Which type of input file would you like to feed to MESA?\n\
     Entropy    		                 [S]  \n\
     Density-Temperature			 [DT] \n\
     Pressure-Temperature      	         [PT] \n\
@@ -104,28 +153,48 @@ def option3(nnit_input, readit_data, sph_input, mode=-1, component_val=-1):
     except:
         neos = 1
 
-    component_data = component_reader(nnit_input) # makes a list of the values of the component for each particle
-    composition_data, jrot_data, temp_data, p_data = neighbors(readit_data,comp_data,sph_input,component_val,component_data,neos)
+    component_data = component_reader(nnit_input)
+    composition_data, jrot_data, temp_data, p_data = neighbors(
+        readit_data,comp_data,sph_input,component_val,component_data,neos
+    )
     print('FINDING BOUND PARTICLES')
-    bound_data,bound_composition_data, jrot_data, temp_data, p_data = bound_particle_data(readit_data,component_data,composition_data,jrot_data,temp_data,p_data,component_val)
+    bound_data, bound_composition_data, jrot_data, temp_data, p_data = \
+        bound_particle_data(
+            readit_data, component_data, composition_data, jrot_data,
+            temp_data, p_data, component_val
+        )
     print('ENTERING BESTFIT')
-    bestfit(bound_data, bound_composition_data, neos, sph_input,jrot_data,temp_data,p_data,component_val)
-    header_data=entropy_reader(mode,path,component_val)
-    header_output(header_data,component_val)
+    bestfit(
+        bound_data, bound_composition_data, neos, sph_input, jrot_data,
+        temp_data, p_data, component_val)
+    header_data = entropy_reader(mode, path, component_val)
+    header_output(header_data, component_val)
 
     return bound_data, bound_composition_data
 
-def option4(nnit_input, nnit_input_end, readit_data, icomp, write_interval, internal_energy_fraction):
+def option4(
+        nnit_input, nnit_input_end, readit_data, icomp,
+        write_interval, internal_energy_fraction
+    ):
+
+    """
+    Determines the bound components of each particle employing the
+    approach presented in Lombardi, et al. (2006)
+
+    Select 0 for internal energy contribution for only mechanical
+    (gravitational potential + kinetic) energy contributions as in
+    Nandez, et al. (2014)
+    """
 
     icomp_old = icomp
-    nfail = 0
     write = False
     print(f'  READING OUTPUT FILE {nnit_input}')
-    # readit_data = readit_collision(nnit_input, 4)
     if nnit_input % write_interval == 0 or nnit_input == nnit_input_end:
         write = True
     
-    icomp, convergence = compbest3(nnit_input, readit_data, icomp_old, write, internal_energy_fraction)
+    icomp, convergence = compbest3(
+        nnit_input, readit_data, icomp_old, write, internal_energy_fraction
+    )
     if not convergence:
         icomp = icomp_old
         n += 1
@@ -137,6 +206,14 @@ def option4(nnit_input, nnit_input_end, readit_data, icomp, write_interval, inte
 
 def option5():
 
+    """
+    Uses an existing bestfit?.sph file to construct a new entropy?.dat
+    file with a new thermodynamic pair
+
+    Entropy, S, only works when using an eos file with entropy, setting
+    neos=2 in sph.input
+    """
+
     mode = input("Which type of input file would you like to feed to MESA?\n\
     Entropy    		                 [S]  \n\
     Density-Temperature			 [DT] \n\
@@ -147,24 +224,41 @@ def option5():
 
     component_val=int(input("Which star are you analyzing? "))
 
-    comp_data = compsph_readit()
-
     header_data = entropy_reader(mode, path, component_val)
     header_output(header_data, component_val)
 
 def option6(readit_data, sph_input, nnit_input):
 
+    """
+    Creates a plot comparing particle data to the profile used for
+    stellar relaxation
+
+    Similar to using supermongo and creating pa plots with smx
+    """
+
     profile_num=sph_input['profilefile']
     pa_plot(readit_data, profile_num, nnit_input)
 
-
 def option7():
+
+    """
+    Reads energy?.sph and plots everything in it
+    including all energies, angular momentum, and entropy
+    """
 
     num = int(input("Energy File Number: "))
     v(num)
     raise SystemExit
 
 def option8(mode=-1, component_val=-1):
+
+    """
+    Forces a star into hydrostatic equilibrium by solving
+    the equation dP/dr = -g*rho
+
+    Accounts for slight rotational effects well below breakup
+    rotation
+    """
 
     if mode == -1:
         mode = input("Which type of input file would you like to feed to MESA?\n\
@@ -177,20 +271,39 @@ def option8(mode=-1, component_val=-1):
     if component_val == -1:
         component_val=int(input("Which star are you analyzing? "))
 
-    comp_data = compsph_readit()
-
     hse_func(component_val)
     header_data=entropy_reader(mode, path, component_val, 1)
     header_output(header_data, component_val, 1)
 
 def option9(readit_data, nnit_input):
 
+    """
+    Uses orbital mechanics to return eccentricity and
+    relative velocity at infinity
+
+    Equations come from Chapter 8 of
+    Classical Dynamics of Particles and Systems
+    Thornton & Marion (5th Edition)
+    """
+
     eccentricity(readit_data, nnit_input)
 
-def option10(nnit_input, readit_data, sph_input, bound_data=None, bound_composition_data=None, mode=-1, component_val=-1, hse_input=-1):
+def option10(
+        nnit_input, readit_data, sph_input, bound_data=None,
+        bound_composition_data=None, mode=-1, component_val=-1, hse_input=-1
+    ):
+
+    """
+    Writes simple MESA inlists that allow for stellar evolution
+    of relaxations in MESA
+
+    Inlists are written for mesa-r24.03.1 and may need to be
+    updated for future releases
+    """
 
     if mode == -1:
-        mode = input("Which type of input file would you like to feed to MESA?\n\
+        mode = input(
+"Which type of input file would you like to feed to MESA?\n\
     Entropy    		                 [S]  \n\
     Density-Temperature			 [DT] \n\
     Pressure-Temperature      	         [PT] \n\
@@ -215,20 +328,33 @@ def option10(nnit_input, readit_data, sph_input, bound_data=None, bound_composit
         
     comp_data = compsph_readit()
 
-    component_data = component_reader(nnit_input) # makes a list of the values of the component for each particle
+    component_data = component_reader(nnit_input)
     if not bound_data:
-        composition_data,jrot_data,temp_data,p_data=neighbors(readit_data,comp_data,sph_input,component_val,component_data,neos)
+        composition_data, jrot_data, temp_data, p_data = neighbors(
+            readit_data, comp_data, sph_input, component_val,
+            component_data, neos)
         print('FINDING BOUND PARTICLES')
-        bound_data,bound_composition_data,jrot_data,temp_data,p_data = bound_particle_data(readit_data,
-                                                                                           component_data,                                                                                composition_data,
-                                                                                        jrot_data,
-                                                                                        temp_data,
-                                                                                        p_data,
-                                                                                        component_val)
-    write_mesa_inlist(bound_data, bound_composition_data, mode, component_val, hse)
+        bound_data, bound_composition_data, jrot_data, temp_data, p_data = \
+            bound_particle_data(
+                readit_data, component_data, composition_data, jrot_data,
+                temp_data, p_data, component_val
+            )
+    write_mesa_inlist(
+        bound_data, bound_composition_data, mode, component_val, hse
+    )
     raise SystemExit
 
 def option11(nnit_input, nnit_input_end, readit_data, sph_input):
+
+    """
+    Runs a complete stellar reconstruction of the final relaxed
+    star in StarSmasher
+
+    Creates an sph.composition file,
+    generates entropy1.dat, angular_momentum1.dat,
+    and composition1.dat using smoothed data,
+    and writes MESA inlist files
+    """
 
     mode = input("Which type of input file would you like to feed to MESA?\n\
     Entropy    		                 [S]  \n\
@@ -244,17 +370,37 @@ def option11(nnit_input, nnit_input_end, readit_data, sph_input):
 
     option2(readit_data, sph_input)
 
-    comp_data = compsph_readit()
-    
-    option4(nnit_input, nnit_input_end,readit_data, icomp, write_interval=nnit_input_end, internal_energy_fraction=0)
-    bound_data, bound_composition_data = option3(nnit_input, readit_data, sph_input, mode, component_val)
-    option10(nnit_input, readit_data, sph_input, bound_data, bound_composition_data, mode, component_val, hse_input=0)
+    option4(
+        nnit_input, nnit_input_end,readit_data, icomp,
+        write_interval=nnit_input_end, internal_energy_fraction=0
+    )
+    bound_data, bound_composition_data = option3(
+        nnit_input, readit_data, sph_input, mode, component_val
+    )
+    option10(
+        nnit_input, readit_data, sph_input, bound_data,
+        bound_composition_data, mode, component_val, hse_input=0
+    )
 
     raise SystemExit
 
-def option12(nnit_input, readit_data, sph_input, icomp, mode=[-1,-1], component_val=[1, 2]):
+def option12(
+        nnit_input, readit_data, sph_input, icomp,
+        mode=[-1,-1], component_val=[1, 2]
+    ):
 
-    comp_data = compsph_readit()
+    """
+    Does a complete stellar reconstruction of a collision product
+    in StarSmasher
+
+    Creates an sph.composition file from
+    an sph.composition1 and sph.composition2 file (if sph.composition
+    does not yet exist),
+    evaluates bound components of particles,
+    generates entropy1.dat, angular_momentum1.dat,
+    and composition1.dat using smoothed data,
+    and writes MESA inlist files
+    """
 
     for comp_val in component_val:
 
@@ -274,7 +420,8 @@ def option12(nnit_input, readit_data, sph_input, icomp, mode=[-1,-1], component_
 
         if mode[comp_val - 1] == -1:
 
-            mode = input("Which type of input file would you like to feed to MESA?\n\
+            mode = input(
+"Which type of input file would you like to feed to MESA?\n\
     Entropy    		                 [S]  \n\
     Density-Temperature			 [DT] \n\
     Pressure-Temperature      	         [PT] \n\
@@ -282,20 +429,32 @@ def option12(nnit_input, readit_data, sph_input, icomp, mode=[-1,-1], component_
     Density-Pressure (Experimental)	 [DP] \n\
 : ")
 
-        bound_data, bound_composition_data = option3(nnit_input, readit_data, sph_input, mode[comp_val-1], comp_val)
-        option10(nnit_input, readit_data, sph_input, bound_data, bound_composition_data, mode[comp_val-1], comp_val, hse_input=0)
+        bound_data, bound_composition_data = option3(
+            nnit_input, readit_data, sph_input, mode[comp_val-1], comp_val
+        )
+        option10(
+            nnit_input, readit_data, sph_input, bound_data,
+            bound_composition_data, mode[comp_val-1], comp_val, hse_input=0
+        )
         os.system(f'mv MESA_input_files MESA_input_files{comp_val}')
 
 def option13(nnit_input, header_data, readit_data, component_val=-1):
+
+    """
+    Writes a new bound*.sph file with the same format as an out*.sph
+    which can be used as a restartrad file or an sph.start?u for
+    another StarSmasher run
+    """
+
     if component_val == -1:
         component_val=int(input("Which star are you analyzing? "))
     component_data = component_reader(nnit_input)
     composition_data = compsph_readit()
-    bound_data, bound_composition = bound_particle_data(data=readit_data,
-                                                        component=component_data,
-                                                        composition=composition_data,
-                                                        component_val=component_val,
-                                                        all_data=False)
+    bound_data, bound_composition = bound_particle_data(
+        data=readit_data, component=component_data,
+        composition=composition_data, component_val=component_val,
+        all_data=False
+    )
     write_bound_particles(nnit_input, header_data, bound_data, component_val)
     write_bound_composition(nnit_input, bound_composition, component_val)    
 
@@ -303,7 +462,7 @@ def main():
 
     ### based on pplot.f
 
-    path=f'/home/{user}/sph-to-mesa/python_splot/'
+    path='/ocean/projects/phy240067p/shared/collision1/sph-to-mesa_for_comp/python_splot'
     option = int(input("Which option would you like to do?\n\
     Write ascii output                         [0] \n\
     Generate MESA files - no smoothing         [1] \n\
@@ -334,16 +493,18 @@ def main():
         # gets last output file
         cwd = os.getcwd()
         files = os.listdir(cwd)
-        outfiles = [file for file in files if file.startswith('out') and file.endswith('.sph')]
+        outfiles = [
+            file for file in files if
+            file.startswith('out') and file.endswith('.sph')
+        ]
         outnums = []
         for out in outfiles:
             outnums.append(int(out.replace('out','').replace('.sph','')))
-        # automatcially decides to use the first and last output file in the collision
-        # for the calculation
+        # automatcially decides to use the first and last output file
+        # in the collision for the calculation
         nnit_input_start = min(outnums)
         nnit_input_end = max(outnums)
         frequency = 1
-        # print(nnit_input_start, nnit_input_end, frequency)
         mode = []
         for i in range(2):
             modei = input(f"MESA ENTROPY FILE FOR STAR {i+1}\n\
@@ -357,6 +518,16 @@ def main():
 
     nnit_input = nnit_input_start
 
+    # used to ensure correct naming of the file
+    if nnit_input < 10:
+        fname = f'out000{nnit_input}.sph'
+    elif nnit_input < 100:
+        fname = f'out00{nnit_input}.sph'
+    elif nnit_input < 1000:
+        fname = f'out0{nnit_input}.sph'
+    else:
+        fname = f'out{nnit_input}.sph'
+
     print('------------------- sph.input ------------------')
     sph_input=sph_input_reader()
     print('\n\n')
@@ -368,26 +539,35 @@ def main():
     orig_option = option
 
     if option == 12:
-        # writes sph.composition
+        # writes sph.composition using sph.composition1
+        # and sph.composition2 is sph.composition does not exist
         files = os.listdir()
         if 'sph.composition' not in files:
-            os.system('cat sph.composition1 sph.composition2 >> sph.composition')
+            os.system(
+                'cat sph.composition1 sph.composition2 >> sph.composition'
+            )
         # automatically runs option 4 to create all comp****.sph files
         option = 4
-        write_interval = 1000
+        write_interval = 1000 # decrease to get more comp****.sph files
         internal_energy_fraction = 0
 
     while nnit_input <= nnit_input_end:
         if nnit_input_end >= nnit_input_start:
-            print(f"--------------------------Output file {nnit_input}--------------------------")
+            print(
+f"--------------------------Output file {nnit_input}-------------------------"
+            )
            
             if option !=5:
                 if option == 0:
-                    readit_data, header_data = readit_collision(nnit_input, 4, True) # iform is always 4 (usually inputted from a separate routine, but I have it set to 4)
+                    readit_data, header_data = readit_collision(
+                        fname, 4, True
+                    )
                 elif option == 13:
-                    readit_data, header_data = readit_collision(nnit_input, 3, True)
+                    readit_data, header_data = readit_collision(
+                        fname, 3, True
+                    )
                 else:
-                    readit_data = readit_collision(nnit_input, 4)
+                    readit_data = readit_collision(fname, 4)
 
             if option == 0:
                 option0(nnit_input, readit_data, header_data)
@@ -404,12 +584,17 @@ def main():
             if option == 4:
 
                 if write_interval == -1:
-                    write_interval = int(input("Frequency of writing comp*.sph files: "))
+                    write_interval = int(input(
+"Frequency of writing comp*.sph files: "
+                    ))
                 if internal_energy_fraction == -1:
-                    internal_energy_fraction = float(input("Enter fraction of internal energy to use when determining bound mass: "))
+                    internal_energy_fraction = float(input(
+"Enter fraction of internal energy to use when determining bound mass: "
+                    ))
             
                 if icomp[0] == -1:
-                    # begins by listing all comp****.sph files in the directory
+                    # begins by listing all comp****.sph files
+                    # in the directory
                     try:
                         file_list=glob.glob('comp****.sph')
                         # largest_number=0
@@ -418,18 +603,25 @@ def main():
                             for file in file_list:
                                 print(file_list)
                                 # gets number of each output file
-                                file_number = int(str(file.replace('comp','')).replace('.sph',''))
+                                file_number = int(str(
+                                    file.replace('comp','')
+                                    ).replace('.sph',''))
                                 print(file_number, largest_number, nnit_input)
-                                if file_number >= largest_number and file_number < nnit_input:
+                                if (file_number >= largest_number and
+                                    file_number < nnit_input):
                                     largest_number = file_number
                                     largest_file = file
-                                elif file_number >= largest_number and file_number > nnit_input:
+                                elif (file_number >= largest_number and
+                                      file_number > nnit_input):
                                     largest_number = file_number
                                     if largest_number > 9999:
-                                        largest_file = f'comp{largest_number:05d}.sph'
+                                        largest_file = \
+                                            f'comp{largest_number:05d}.sph'
                                     else:
-                                        largest_file = f'comp{largest_number:04d}.sph'
-                                elif file_number == largest_number and file_number == nnit_input:
+                                        largest_file = \
+                                            f'comp{largest_number:04d}.sph'
+                                elif (file_number == largest_number and
+                                      file_number == nnit_input):
                                     largest_number = file_number
                                     largest_file = file
                     except:
@@ -437,11 +629,21 @@ def main():
                         largest_file = f'comp{nnit_input_start:04d}.sph'
 
                     print(largest_file)
-                    # raise SystemExit
 
-                    # allows the component determination to begin from the most recent comp****.sph file
+                    # allows the component determination to begin from
+                    # the most recent comp****.sph file
                     if nnit_input != largest_number:
-                        readit_data = readit_collision(largest_number,4)
+                            # used to ensure correct naming of the file
+                        if largest_number < 10:
+                            fname = f'out000{largest_number}.sph'
+                        elif largest_number < 100:
+                            fname = f'out00{largest_number}.sph'
+                        elif largest_number < 1000:
+                            fname = f'out0{largest_number}.sph'
+                        else:
+                            fname = f'out{largest_number}.sph'
+
+                        readit_data = readit_collision(fname, 4)
                     nnit_input = largest_number
 
                     # tries to open comp****.sph file 
@@ -457,7 +659,9 @@ def main():
                                     icomp.append(int(vals[3]))
                         print(np.where(icomp==1))
                         print(np.where(icomp==2))
-                    except: # if there are no comp****.sph files for a 2+ body interaction
+                    except:
+                        # if there are no comp****.sph files for a
+                        # 2+ body interaction
                         try:
                             print('NO EXISTING comp****.sph FILE')
                             n1=readit_data['n1']
@@ -466,8 +670,12 @@ def main():
                             icomp2=[2]*n2
                             icomp=icomp1+icomp2
                             largest_number=0
-                        except KeyError: # if there are no comp****.sph files for a stellar relaxation
-                            print('NO EXISITNG comp****.sph FILE\nONE STAR IN SPH SIMULATION')
+                        except KeyError:
+                            # if there are no comp****.sph files
+                            # for a stellar relaxation
+                            print(
+'NO EXISITNG comp****.sph FILE\nONE STAR IN SPH SIMULATION'
+                            )
                             ntot=readit_data['ntot']
                             icomp=[1]*ntot
                             largest_number=0
@@ -478,7 +686,10 @@ def main():
                 else:
                     icomp = icomp
                     
-                icomp = option4(nnit_input, nnit_input_end, readit_data, icomp, write_interval, internal_energy_fraction)
+                icomp = option4(
+                    nnit_input, nnit_input_end, readit_data, icomp,
+                    write_interval, internal_energy_fraction
+                )
 
                 if orig_option == 12:
                     if nnit_input == nnit_input_end:
@@ -510,10 +721,11 @@ def main():
                 option12(nnit_input, readit_data, sph_input, icomp, mode=mode)
 
             if option == 13:
-                option13(nnit_input, header_data, readit_data, component_val=-1)
+                option13(
+                    nnit_input, header_data, readit_data, component_val=-1
+                )
 
 
-            # print("Output data analysis completed.")
             if nnit_input == nnit_input_end:
                 break
             nnit_input += frequency
@@ -525,9 +737,10 @@ def main():
                     complete = True
                     nnit_input = nnit_input_end
             if nnit_input_end < nnit_input_start:
-                print("End value was smaller than start value. Please try again.")
+                print(
+"End value was smaller than start value. Please try again."
+                )
             print('ANALYSIS COMPLETE')
-                ###
 
 if __name__ == "__main__":
     main()
