@@ -29,6 +29,10 @@ def composition_reader(profile_num):
         # indexing value
         n = 0
 
+        # for calculating enclosed mass
+        # fraction q
+        q_exists = True
+
         for line in f:
             # skips the first 6 lines as they don't
             # contain pertinent information for us
@@ -38,7 +42,13 @@ def composition_reader(profile_num):
                 # determines the header data and finds
                 # the correct column to pull data from to append
                 headers = line.split()
-                q_index = headers.index("q")
+                try:
+                    q_index = headers.index("q")
+                except:
+                    print('NO ENCLOSED MASS FRACTION q IN MESA PROFILE')
+                    print('CALCULATING q "mass" COLUMN')
+                    mass_index = headers.index("mass")
+                    q_exists = False
                 h1_index = headers.index("h1")
                 he3_index = headers.index("he3")
                 he4_index = headers.index("he4")
@@ -51,8 +61,14 @@ def composition_reader(profile_num):
             elif n > 6:
                 values = line.split()
                 # finds the mass fraction value
-                qval = float(values[q_index])
-                q.append(qval)
+                if q_exists:
+                    qval = float(values[q_index])
+                    q.append(qval)
+                else:
+                    if n == 7:
+                        mtot = values[mass_index]
+                    qval = float(values[mass_index] / mtot)
+                    q.append(qval)
 
                 # appends the value for each element to
                 # the corresponding position in the array
