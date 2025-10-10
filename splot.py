@@ -1,4 +1,4 @@
-#!/jet/home/cgibson2/run_splot/bin/python3
+#!/usr/bin/python3
 
 """
 Hans Vanderzyden
@@ -48,7 +48,7 @@ import numpy as np
 user = str(getpass.getuser()) # gets username of user
 # path where sph-to-mesa exists
 # sys.path.insert(0, f'/jet/home/{user}/sph-to-mesa/python_splot/')
-sys.path.insert(0, f'/ocean/projects/phy240067p/shared/collision1/sph-to-mesa_for_comp/python_splot')
+sys.path.insert(0, f'home/{user}/sph-to-mesa/python_splot')
 
 # these and all new files must be imported after the above two lines
 from ascii_output import ascii_output
@@ -75,7 +75,7 @@ from write_bound_particles import write_bound_particles
 from write_bound_composition import write_bound_composition
 
 # path where sph-to-mesa lives
-path='/ocean/projects/phy240067p/shared/collision1/sph-to-mesa_for_comp/python_splot'
+path='/home/{user}/sph-to-mesa/python_splot'
 
 def option0(nnit_input, readit_data, header_data):
 
