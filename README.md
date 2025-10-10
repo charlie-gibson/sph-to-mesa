@@ -16,7 +16,7 @@ You will also need to unzip the sph.eos* files:
 cd
 cd sph-to-mesa/python_splot
 gzip -d sph.eos_X0.00to0.75step0.05.gz
-gzip -d sph.eos_X0.00to0.75step0.05.gz_entropy
+gzip -d sph.eos_X0.00to0.75step0.05_entropy.gz
 ```
 
 # General Usage
