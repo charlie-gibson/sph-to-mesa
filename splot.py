@@ -462,7 +462,7 @@ def main():
 
     ### based on pplot.f
 
-    path='/ocean/projects/phy240067p/shared/collision1/sph-to-mesa_for_comp/python_splot'
+    path=f'/home/{user}/python_splot'
     option = int(input("Which option would you like to do?\n\
     Write ascii output                         [0] \n\
     Generate MESA files - no smoothing         [1] \n\
