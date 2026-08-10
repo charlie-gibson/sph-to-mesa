@@ -47,8 +47,7 @@ import re
 import numpy as np
 user = str(getpass.getuser()) # gets username of user
 # path where sph-to-mesa exists
-# sys.path.insert(0, f'/jet/home/{user}/sph-to-mesa/python_splot/')
-sys.path.insert(0, f'home/{user}/sph-to-mesa/python_splot')
+sys.path.insert(0, f'/home/{user}/sph-to-mesa/python_splot')
 
 # these and all new files must be imported after the above two lines
 from ascii_output import ascii_output
